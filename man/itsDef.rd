@@ -25,7 +25,7 @@
 its(x,dates=as.POSIXct(x=strptime(dimnames(x)[[1]],format=its.format())),
 names=dimnames(x)[[2]],format=its.format(),...)
 
-newIts(x=NA,start=format(Sys.time(),format=its.format()),
+newIts(x=NA,start=format(Sys.Date(),format=its.format()),
 end,ncol=1,by="DSTday",extract=FALSE,format=its.format(),...)
 
 as.its(x,...)
@@ -138,5 +138,6 @@ as.its(mat)
 its.format("\%a \%d \%b \%Y")
 newIts(start="2003-09-30",end="2005-05-05",format="\%Y-\%m-\%d",period="month",find="last",extract=TRUE,weekday=TRUE)
 newIts(start=ISOdate(2003,12,24,0),end=ISOdate(2004,1,10),extract=TRUE,weekday=TRUE)
+its.format("\%Y\%m\%d") 
 as(newIts(),"data.frame")
 }

@@ -1,3 +1,0 @@
-Requires an extra namespace directive for 1.9.0 onwards, as follows:
-
-import(stats) 

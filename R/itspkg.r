@@ -418,7 +418,7 @@ rangeIts <- function(x,start=dates(x)[1],end=dates(x)[nrow(x)],format=its.format
     }
 #newIts-function----------------------------------------------------
 newIts <- function(x=NA,
-                   start=format(Sys.time(),format=its.format()),
+                   start=format(Sys.Date(),format=its.format()),
                    end,
                    ncol=1,
                    by="DSTday",
@@ -429,15 +429,16 @@ newIts <- function(x=NA,
     if(mode(start)=="character") 
         {start.p <- as.POSIXct(x=strptime(start,format=format),tz="UTM")} else
         {start.p <- as.POSIXct(start)}
-    if(missing(end)) {end <- format(start.p+9*24*60*60,format=its.format())}
-    if(mode(end)=="character") 
-        {end.p <- as.POSIXct(x=strptime(end,format=format),tz="UTM")} else
-        {end.p <- as.POSIXct(end)}
+    if(missing(end)) {end <- format(as.Date(start,format=its.format())+9,format=its.format())
+                     end.p <- as.POSIXct(x=strptime(end,format=format),tz="UTM")} else 
+                        if(mode(end)=="character") 
+                            {end.p <- as.POSIXct(x=strptime(end,format=format),tz="UTM")} else
+                            {end.p <- as.POSIXct(end)}
     dates <- seq(from=start.p,by=by,to=end.p)
     if(extract) {dates <- extractDates(dates=dates,...)}
     result <- its(matrix(x,ncol=ncol,nrow=length(dates)),dates)
     return(result)
-    }
+    } 
 #extractIts-function-----------------------------------------------
 extractIts <- function(x,
                     weekday=FALSE,

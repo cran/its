@@ -1,5 +1,11 @@
 its package release notes
 
+1.0.2   2004-04-16
+1   fixed bug in newIts()
+
+1.0.1   2004-03
+1   added require(stats) namespace directive for 1.9.0
+
 1.0.0   2004-02-12 [n.b. for version>=1.9.0 will need additional namespace directive import(stats)]
 0   licence changed to GPL Version 2
 1   new function 'locf()' (last observation carry forward)
