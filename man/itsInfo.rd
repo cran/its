@@ -1,6 +1,9 @@
 \keyword{ts}
-\name{its-info}
-\alias{its-info}
+\name{itsInfo}
+\alias{itsInfo}
+\alias{start}
+\alias{end}
+\alias{summary}
 \alias{start,its-method}
 \alias{end,its-method}
 \alias{summary,its-method}
@@ -11,8 +14,8 @@
 }
 \section{Usage}{
 
-start(x,format=its.format(),\dots)
-end(x,format=its.format(),\dots)
+start(x,format=its.format(),...)
+end(x,format=its.format(),...)
 summary(object)
 
 }
@@ -26,8 +29,8 @@ summary(object)
 }
 \details{
 
-Summary returns the mean, standard deviation, minimum, maximum, and number of
-non-NA data points for each series.
+Summary returns the same statistics as summary for a matrix, plus the number of
+NA and non-NA data points for each series, and the standard deviation.
 
 Start and end return the dates corresponding to the first and last rows,
 respectively.
@@ -45,24 +48,21 @@ For \code{summary}, a table of summary statistics for each series
 \seealso{
   \code{\link{ts}},
   \code{\link{POSIXct}},
-  \code{\link{its-file}},
-  \code{\link{its-lags}}
-  \code{\link{its-join}}
-  \code{\link{its-times}}
-  \code{\link{its-subset}}
-  \code{\link{its-fin}}
-  \code{\link{its-disp}}
-  \code{\link{its-info}}
-  \code{\link{its-cumdif}}
-  \code{\link{its-arith}}
+  \code{\link{itsFile}},
+  \code{\link{itsLags}}
+  \code{\link{itsJoin}}
+  \code{\link{itsTimes}}
+  \code{\link{itsSubset}}
+  \code{\link{itsFin}}
+  \code{\link{itsDisp}}
+  \code{\link{itsInfo}}
+  \code{\link{itsCumdif}}
+  \code{\link{itsArith}}
 }
 
 \examples{
-\dontrun{
-a <- matrix(c(seq(by=24*60*60,length=20),1:20,41:60),nrow=20,ncol=3)
-b <- as.its(a)
+b <- newIts(1:30,ncol=3)
 start(b,format="\%y-\%m-\%d")
 end(b)
 summary(b)
-}
 }

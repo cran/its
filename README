@@ -1,18 +1,6 @@
-The its package contains an S4 class and some functionality for handling
-irregular time series.
-
-For correct installation on Windows, the zip file should be installed using
-Rcmd INSTALL --save its.  Installation using install.packages() resulted 
-in generic functions loading into .GlobalEnv, where they could be deleted or 
-corrupted.
-
 Thanks to John Chambers and others for help, and to Adrian Trapletti and
 others for encouragement - and of course they have no responsibility for
 any shortcomings.
 
-Version 0.1.1 is tentative, and feedback is welcome.
-Version 0.1.2 has some minor improvements:
-                documentation
-                at is passed to axis.POSIXct in plot for tickmark control
-                plot now has additional options for handling NAs
+See the file 'changes' for revisions history
                 

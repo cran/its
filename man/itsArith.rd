@@ -1,7 +1,7 @@
 \keyword{ts}
 \keyword{arith}
-\name{its-arith}
-\alias{its-arith}
+\name{itsArith}
+\alias{itsArith}
 \alias{Arith,its,its-method}
 \alias{+}
 
@@ -46,24 +46,21 @@ inputs, and with identical time-stamps.
 \seealso{
   \code{\link{ts}},
   \code{\link{POSIXct}},
-  \code{\link{its-file}},
-  \code{\link{its-lags}}
-  \code{\link{its-join}}
-  \code{\link{its-times}}
-  \code{\link{its-subset}}
-  \code{\link{its-fin}}
-  \code{\link{its-disp}}
-  \code{\link{its-info}}
-  \code{\link{its-cumdif}}
+  \code{\link{itsFile}},
+  \code{\link{itsLags}}
+  \code{\link{itsJoin}}
+  \code{\link{itsTimes}}
+  \code{\link{itsSubset}}
+  \code{\link{itsFin}}
+  \code{\link{itsDisp}}
+  \code{\link{itsInfo}}
+  \code{\link{itsCumdif}}
 }
 
 \examples{
-\dontrun{
-a <- matrix(c(seq(by=24*60*60,length=20),1:20,41:60),nrow=20,ncol=3)
-b <- as.its(a)
+b <- newIts(1:30,ncol=3)
 b+b-2*b
 b/b
-b%*%diag(ncol(b))
-its(b%*%diag(ncol(b))) 
-}
+b\%*\%diag(ncol(b))
+its(b\%*\%diag(ncol(b))) 
 }

@@ -1,0 +1,40 @@
+exportClass("its")
+import(methods)
+export( readcsvIts,
+        writecsvIts,
+        accrueIts,
+        its,
+        is.its,
+        as.its,
+        lagIts,
+        lagdistIts,
+        alignedIts,
+        appendIts,
+        daysecondIts,
+        weekdayIts,
+        rangeIts,
+        newIts,
+        extractIts,
+        collapseIts,
+        its.format
+        )
+
+exportMethods(
+        Arith,
+        "[",
+        names,
+        "names<-",
+        dates,
+        "dates<-",
+        core,
+        "core<-",
+        plot,
+        print,
+        start, 
+        end,
+        summary,
+        cumsum,
+        diff,
+        union,
+        intersect
+        )

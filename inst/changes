@@ -1,0 +1,32 @@
+its package release notes
+
+0.2.1   2004-01-06
+1   bugfix version to pass Rcmd check on R-devel (0.2.0 not released on CRAN)
+    some fixes to method documentation
+    removed direct calls to POSIX methods for format, plot, seq
+    replaced export() with exportClasses() in namespace
+
+0.2.0   2003-12-16
+1   new functions: newIts, extractIts, collapseIts
+2   new 'lab' option in plot for labelling series
+3   'leg' option in plot now uses labcurve(), not locator()
+4   renamed the function classifications in documentation (itsFunctions, not its-functions)
+5   dates() accessor & assignment methods for dates 
+6   names() accessor & assignment functions for the dimnames(matrix)[[2]]
+7   core() accessor & assignment functions for the matrix
+8   revised summary()
+9   the package is now in a namespace - a number of internal functions have therefore been withdrawn
+10  added a 'dates' option for row selection using POSIXct in extractor: [i,j,dates]
+11  optional use of POSIXct dates in rangeIts
+12  CRAN package Hmisc is now required
+
+0.1.2   2003-09-20
+1   removed logic to take special action on logical subscripts
+2   allow append() to operate on NULL
+3   fix and extend documentation
+4   'at' passed to axis.POSIXct() by plot()
+5   'format' passed to axis.POSIXct() by plot()
+6   handling of NAs in plot() - options
+7   linetype options in plot()
+
+0.1.1   2003-07-22

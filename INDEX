@@ -1,34 +1,23 @@
-accrueIts           Financial Functions for Irregular Time-Series Objects 
-alignedIts          Join Functions for Irregular Time-Series Objects 
-appendIts           Join Functions for Irregular Time-Series Objects 
-as.its,its-method   Irregularly Spaced Time-Series 
-cumsum              Cumulation, Differencing for Irregular Time-Series Objects 
-daysecondIts        Time Functions for Irregular Time-Series Objects 
-diff,its-method     Cumulation, Differencing for Irregular Time-Series Objects 
-end,its-method      Summary Information for Irregular Time-Series Objects 
-intersect           Join Functions for Irregular Time-Series Objects 
-is.its              Irregularly Spaced Time-Series 
-its                 Irregularly Spaced Time-Series 
-its-arith           Arithmetic Methods for Irregular Time-Series Objects 
-its-cumdif          Cumulation, Differencing for Irregular Time-Series Objects 
-its-disp            Display Methods for Irregular Time-Series Objects 
-its-file            File Operations for Irregular Time-Series Objects 
-its-fin             Financial Functions for Irregular Time-Series Objects 
-its-info            Summary Information for Irregular Time-Series Objects 
-its-join            Join Functions for Irregular Time-Series Objects 
-its-lags            Lag Functions for Irregular Time-Series Objects 
-its-subset          Subsetting Functions for Irregular Time-Series Objects 
-its-times           Time Functions for Irregular Time-Series Objects 
-its.format          Irregularly Spaced Time-Series 
-lagdistIts          Lag Functions for Irregular Time-Series Objects 
-lagIts              Lag Functions for Irregular Time-Series Objects 
-plot,its-method     Display Methods for Irregular Time-Series Objects 
-print,its-method    Display Methods for Irregular Time-Series Objects 
-rangeIts            Subsetting Functions for Irregular Time-Series Objects 
-readcsvIts          File Operations for Irregular Time-Series Objects 
-start,its-method    Summary Information for Irregular Time-Series Objects 
-summary,its-method  Summary Information for Irregular Time-Series Objects 
-union               Join Functions for Irregular Time-Series Objects 
-weekdayIts          Time Functions for Irregular Time-Series Objects 
-writecsvIts         File Operations for Irregular Time-Series Objects 
-x[i,j]              Subsetting Functions for Irregular Time-Series Objects 
+itsAccessor             Accessor, Assignment Functions for Irregular
+                        Time-Series Objects
+itsArith                Arithmetic Methods for Irregular Time-Series
+                        Objects
+itsCumdif               Cumulation, Differencing for Irregular
+                        Time-Series Objects
+itsDef                  Irregularly Spaced Time-Series
+itsDisp                 Display Methods for Irregular Time-Series
+                        Objects
+itsFile                 File Operations for Irregular Time-Series
+                        Objects
+itsFin                  Financial Functions for Irregular Time-Series
+                        Objects
+itsInfo                 Summary Information for Irregular Time-Series
+                        Objects
+itsJoin                 Join Functions for Irregular Time-Series
+                        Objects
+itsLags                 Lag Functions for Irregular Time-Series
+                        Objects
+itsSubset               Range and Extract for Irregular Time-Series
+                        Objects
+itsTimes                Time Functions for Irregular Time-Series
+                        Objects

@@ -1,6 +1,6 @@
 \keyword{ts}
-\name{its-file}
-\alias{its-file}
+\name{itsFile}
+\alias{itsFile}
 \alias{readcsvIts}
 \alias{writecsvIts}
 \title{File Operations for Irregular Time-Series Objects}
@@ -42,21 +42,20 @@ sep=",",...)
 \seealso{
   \code{\link{ts}},
   \code{\link{POSIXct}},
-  \code{\link{its-file}},
-  \code{\link{its-lags}}
-  \code{\link{its-join}}
-  \code{\link{its-times}}
-  \code{\link{its-subset}}
-  \code{\link{its-fin}}
-  \code{\link{its-disp}}
-  \code{\link{its-info}}
-  \code{\link{its-cumdif}}
-  \code{\link{its-arith}}
+  \code{\link{itsFile}},
+  \code{\link{itsLags}}
+  \code{\link{itsJoin}}
+  \code{\link{itsTimes}}
+  \code{\link{itsSubset}}
+  \code{\link{itsFin}}
+  \code{\link{itsDisp}}
+  \code{\link{itsInfo}}
+  \code{\link{itsCumdif}}
+  \code{\link{itsArith}}
 }
 \examples{
 \dontrun{
-a <- matrix(c(seq(by=24*60*60,length=20),1:20,41:60),nrow=20,ncol=3)
-b <- as.its(a)
+b <- newIts(1:30,ncol=3)
 fname <- tempfile()
 # To write an irregular time-series object to a file one might use
 writecsvIts(b,filename=fname)

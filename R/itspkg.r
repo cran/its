@@ -1,6 +1,61 @@
-require("methods")
+require("Hmisc",quietly=TRUE)
+itsState <- new.env()
+assign(x=".itsformat", value="%Y-%m-%d" , env=itsState)
 setClass("its",representation("matrix",dates="POSIXt"))
 #-Methods-
+#names-method-------------------------------------------------------
+if(!isGeneric("names")) {setGeneric("names")}
+setMethod("names",signature(x="its"),
+    namesIts <- function(x)
+    {
+    return(dimnames(x@.Data)[[2]])
+    }
+    )
+#"names<-"-method---------------------------------------------------
+if(!isGeneric("names<-")) {setGeneric("names<-", function(x,value) standardGeneric("names<-"))}
+setMethod("names<-",signature(x="its",value="character"),
+    "names<-Its" <- function(x,value)
+    {
+    result <- x
+    dimnames(result)[[2]] <- value
+    return(result)
+    }
+    )
+#dates-method-------------------------------------------------------
+if(!isGeneric("dates")) {setGeneric("dates", function(x) standardGeneric("dates"))}
+setMethod("dates",signature(x="its"),
+    datesIts <- function(x)
+    {
+    return(x@dates)
+    }
+    )
+#"dates<-"-method---------------------------------------------------
+if(!isGeneric("dates<-")) {setGeneric("dates<-", function(x,value) standardGeneric("dates<-"))}
+setMethod("dates<-",signature(x="its",value="POSIXt"),
+    "dates<-Its" <- function(x,value)
+    {
+    result <- its(x@.Data,value)
+    return(result)
+    }
+    )
+#core-method-------------------------------------------------------
+if(!isGeneric("core")) {setGeneric("core", function(x) standardGeneric("core"))}
+setMethod("core",signature(x="its"),
+    coreIts <- function(x)
+    {
+    return(x@.Data)
+    }
+    )
+#"core<-"-method---------------------------------------------------
+if(!isGeneric("core<-")) {setGeneric("core<-", function(x,value) standardGeneric("core<-"))}
+setMethod("core<-",signature(x="its",value="matrix"),
+    "core<-Its" <- function(x,value)
+    {
+    result <- its(value,dates(x))
+    names(result) <- names(x)
+    return(result)
+    }
+    )
 #arith-methods------------------------------------------------------
 setMethod("Arith",signature(e1="its",e2="its"),
     function(e1,e2)
@@ -11,10 +66,10 @@ setMethod("Arith",signature(e1="its",e2="its"),
     }
     )
 #plot-method--------------------------------------------------------
-if(!isGeneric("plot")) setGeneric("plot")
+if(!isGeneric("plot")) setGeneric("plot", useAsDefault=plot)
 setMethod("plot",signature(x="its",y="missing"),
     plotIts <- function(x,y,colvec=1:ncol(x),type="l",ltypvec=1,lwdvec=1,
-                        leg=FALSE,yrange,format,at,interp=c("linear","none"),...) 
+                        leg=FALSE,yrange,format,at,interp=c("linear","none"),lab=FALSE,...) 
     {
     if(missing(yrange)){ylim <- range(x,na.rm=TRUE)} else {ylim <- yrange}
     interp <- match.arg(interp)
@@ -40,7 +95,7 @@ setMethod("plot",signature(x="its",y="missing"),
         for (j in 1:ncol(xxx))
             {
             if(!firstp){par(new=TRUE)}else {firstp <- FALSE}
-            plot.POSIXct(x=xdates[vpoints],
+            plot(x=xdates[vpoints],
                         y=xxx[vpoints,j],
                         type=type,
                         col=colveclong[i],
@@ -51,9 +106,24 @@ setMethod("plot",signature(x="its",y="missing"),
                         ...)
             }
         }
+    if(lab) 
+        {
+        labcurve(curves=gencurves(x),
+                 labels=dimnames(x)[[2]],
+                 col=colveclong,
+                 cex=.8)
+        } else if(leg)
+        {
+        labcurve(curves=gencurves(x),
+                 labels=dimnames(x)[[2]],
+                 col=colveclong,
+                 lty=ltypveclong[i],
+                 lwd=lwdveclong[i],
+                 keys=rep(" ",ncol(x)), #letters[1:ncol(x)],
+                 cex=.8)
+        }
     grid()
-    axis.POSIXct(x=xdates[vpoints],side=1,at=at,format=format)
-    if(leg){legend(locator(1),legend=dimnames(x)[[2]],fill=colveclong,bty="n",col=colveclong)}
+    axis.POSIXct(x=xdates[vpoints],side=1,at=at,format=format)    
     }
     )
 #print-method-------------------------------------------------------
@@ -62,21 +132,19 @@ setMethod("print",signature(x="its"),
     printIts <- function(x,...){print(x@.Data,...)}
     )
 #start-method-------------------------------------------------------
-if(!isGeneric("start")) {setGeneric("start")}
+if(!isGeneric("start")) {setGeneric("start", useAsDefault=start)}
 setMethod("start",signature(x="its"),
     startIts <- function(x,format=its.format(),...)
     {
-    #returns text format not posix (suitable for rangeIts)
-    return(format.POSIXct(x@dates[1],format=format,...))
+    return(format(x@dates[1],format=format,...))
     }
     )
 #end -method--------------------------------------------------------
-if(!isGeneric("end")) {setGeneric("end")}
+if(!isGeneric("end")) {setGeneric("end", useAsDefault=end)}
 setMethod("end",signature(x="its"),
     endIts <- function(x,format=its.format(),...)
     {
-    #returns text format not posix (suitable for rangeIts)
-    return(format.POSIXct(x@dates[length(x@dates)],format=format,...))
+    return(format(x@dates[length(x@dates)],format=format,...))
     }
     )
 #summary-method-----------------------------------------------------
@@ -84,13 +152,19 @@ if(!isGeneric("summary")) {setGeneric("summary")}
 setMethod("summary",signature(object="its"),
     summaryIts <- function(object,...)
     {
-    r1 <- apply(object,2,mean,na.rm=TRUE)
-    r2 <- sqrt(apply(object,2,var,na.rm=TRUE))
-    r3 <- apply(object,2,min,na.rm=TRUE)
-    r4 <- apply(object,2,max,na.rm=TRUE)
-    r5 <- apply(!is.na(object),2,sum,na.rm=TRUE)
-    mysum <- rbind(r1,r2,r3,r4,r5)
-    dimnames(mysum)[[1]] <- c("mean","s.d.","min","max","nsamp")
+    r1 <- apply(object,2,min,na.rm=TRUE)
+    r2a <- apply(object,2,quantile,probs=.25)
+    r2b <- apply(object,2,quantile,probs=.5)
+    r3 <- apply(object,2,mean,na.rm=TRUE)
+    r4 <- apply(object,2,quantile,probs=.75)
+    r5 <- apply(object,2,max,na.rm=TRUE)
+    r6 <- apply(is.na(object),2,sum,na.rm=TRUE)
+    r7 <- rep(nrow(object),ncol(object))-r6
+    r8 <- sqrt(apply(object,2,var,na.rm=TRUE))
+
+    mysum <- rbind(r1,r2a,r2b,r3,r4,r5,r6,r7,r8)
+    dimnames(mysum)[[1]] <- c("Min.","1st Qu.","Median","Mean","3rd Qu.","Max.","NA's","non-NA's","s.d.")
+    dimnames(mysum)[[2]] <- names(object)
     mysum
     }
     )
@@ -184,7 +258,7 @@ readcsvIts <- function(filename,informat=its.format(),outformat=its.format(),tz=
     datamat <- as.numeric(as.matrix((mydata)[,2:m,drop=FALSE]))
     dim(datamat) <- c(n,(m-1))
     dimnames(datamat) <- list(dimnames(mydata)[[1]],dimnames(mydata)[[2]][2:m])
-    dimnames(datamat)[[1]]  <- format.POSIXlt(strptime(as.character(as.vector(mydata[,1])),
+    dimnames(datamat)[[1]]  <- format(strptime(as.character(as.vector(mydata[,1])),
                                               informat),format=outformat,tz=tz,usetz=usetz)
     return(datamat)
     }
@@ -192,7 +266,7 @@ readcsvIts <- function(filename,informat=its.format(),outformat=its.format(),tz=
 writecsvIts <- function(x,filename,format=its.format(),tz="",usetz=FALSE,col.names=NA,sep=",",...)
     {
     if (!inherits(x, "its")) stop("function is only valid for objects of class 'its'")
-    dimnames(x)[[1]] <- format.POSIXct(x@dates,format=format,tz=tz,usetz=usetz)
+    dimnames(x)[[1]] <- format(x@dates,format=format,tz=tz,usetz=usetz)
     y <- data.frame(x@.Data)
     dimnames(y) <- dimnames(x)
     mydata <- write.table(y,file=filename,col.names=col.names,sep=sep,...)
@@ -216,7 +290,7 @@ its <- function(x,
     x <- addDimnames(x)
     if(!(nrow(x)==length(dates))) {stop("dates length must match matrix nrows")}
     if(!(ncol(x)==length(names))) {stop("names length must match matrix ncols")}
-    dimnames(x)[[1]] <- format.POSIXct(dates,format=format,...)
+    dimnames(x)[[1]] <- format(dates,format=format,...)
     dimnames(x)[[2]] <- names
     return(new("its",x,dates=dates))
     }
@@ -285,12 +359,13 @@ appendIts <- function(obj1,obj2,but=TRUE,matchnames=TRUE)
     nmatch <- namesmatchIts(obj1,obj2)
     if(matchnames && !nmatch) stop("names of the two inputs must match")
     if(overlap &&!overlapmatchesIts(obj1[,attr(nmatch,which="lut")],obj2)) stop("overlap data does not match")
-    if(max(as.numeric(obj1@dates))<max(as.numeric(obj2@dates)))
+    if(max(as.numeric(obj1@dates))<=max(as.numeric(obj2@dates)))
         {    xlow <- obj1;    xhigh <- obj2    } else
         {    xlow <- obj2;    xhigh <- obj1    }
     if(overlapsIts(obj1,obj2))
         {
-        highoverlap <- which(as.numeric(xhigh@dates)<=max(as.numeric(xlow@dates)))
+        highoverlap <- which(as.numeric(xhigh@dates)<=max(as.numeric(xlow@dates)) &
+                            as.numeric(xhigh@dates)>=min(as.numeric(xlow@dates)))
         xhigh <- xhigh[-highoverlap,]
         }
     if(matchnames)
@@ -317,14 +392,76 @@ weekdayIts <- function (x,...)
     return((0 < day) & (day < 6))
     }
 #rangeIts-function--------------------------------------------------
-rangeIts <- function(x,start=startIts(x),end=endIts(x),format=its.format(),...)
+rangeIts <- function(x,start=dates(x)[1],end=dates(x)[n],format=its.format(),...)
     {
     if (!inherits(x, "its")) stop("function is only valid for objects of class 'its'")
-    #returns rows corresponding to a date range; start and end are strings in the format specified
-    start.posix <- as.POSIXct(x=strptime(start,format=format),...)
-    end.posix <- as.POSIXct(x=strptime(end,format=format),...)
-    return(x[which((x@dates>=start.posix) & (x@dates<=end.posix)),])
+    n <- nrow(x)
+    if(mode(start)=="character") {start <- as.POSIXct(x=strptime(start,format=format),...)}
+    if(mode(end)=="character") {end <- as.POSIXct(x=strptime(end,format=format),...)}
+    return(x[which((x@dates>=start) & (x@dates<=end)),])
     }
+#newIts-function----------------------------------------------------
+newIts <- function(x=NA,
+                   start=format(Sys.time(),format=its.format()),
+                   end,
+                   ncol=1,
+                   by="DSTday",
+                   extract=FALSE,
+                   format=its.format(),
+                   ...)
+    {
+    if(mode(start)=="character") 
+        {start.p <- as.POSIXct(x=strptime(start,format=format),tz="UTM")} else
+        {start.p <- start}
+    if(missing(end)) {end <- format(start.p+9*24*60*60,format=its.format())}
+    if(mode(end)=="character") 
+        {end.p <- as.POSIXct(x=strptime(end,format=format),tz="UTM")} else
+        {end.p <- end}
+    dates <- seq(from=start.p,by=by,to=end.p)
+    if(extract) {dates <- extractDates(dates=dates,...)}
+    result <- its(matrix(x,ncol=ncol,nrow=length(dates)),dates)
+    return(result)
+    }
+#extractIts-function-----------------------------------------------
+extractIts <- function(x,
+                    weekday=FALSE,
+                    find=c("all","last","first"),
+                    period=c("week","month"),
+                    partials=TRUE,
+                    select)
+    {
+    if (!inherits(x, "its")) stop("function is only valid for objects of class 'its'")
+    xdates <- extractDates(x@dates,
+                   weekday=weekday,
+                   find=find,
+                   period=period,
+                   partials=partials,
+                   select=select)
+    return(x[dates=xdates])
+    }
+
+#collapse-function---------------------------------------------------
+collapseIts <- function(x)
+    {
+    if (!inherits(x, "its")) stop("function is only valid for objects of class 'its'")
+    labels <- dimnames(x)[[2]]
+    uniquelabels <- unique(labels)
+    jresult <- match(uniquelabels,labels)
+    result <- x[,jresult]*NA
+    if(length(uniquelabels)<length(labels))
+        {
+        for(j in 1:length(uniquelabels))
+            {
+            jall <- which(!is.na(match(labels,uniquelabels[j])))
+            delta <- apply(x[,jall],1,var,na.rm=TRUE)
+            if(any(delta[!is.na(delta)]>0)) stop("column data must match in collapse function")
+            result[,j] <- apply(x[,jall],1,median,na.rm=TRUE)
+            }
+        } else { result <- x  }
+     return(result)
+     }
+
+#-Utilities-#######################################################
 #-Utility Methods-
 #validity check----------------------------------------------------
 validIts <-  function(object)
@@ -332,16 +469,25 @@ validIts <-  function(object)
     if(!identical(nrow(object@.Data),length(object@dates))) return("Inconsistent length of dates")
     if(any(is.na(object@dates))) return("Missing values in dates")
     d <- diff(object@dates)
-    if(any(d<0.)) return("Decreasing dates not allowed")
+    if(any(d<0.)) return("Dates must be non-decreasing")
     return(TRUE)
     }
 setValidity("its",validIts)
 #[-method-----------------------------------------------------------
-setMethod("[", c("its","ANY"),  function(x, i=min(1,nrow(x)):nrow(x), j=min(1,ncol(x)):ncol(x), drop = FALSE)
+setMethod("[", c("its","ANY"),  function(x, i, j, drop, ...)
     {
+    if(match("dates",names(list(...)),0)>0) 
+        {
+        dates <- list(...)[["dates"]]
+        if(!missing(i)) stop("cannot specify both dates and i")
+        if(!is(dates,"POSIXt")) stop("dates should be in POSIX format")
+        dates <- as.POSIXct(dates)
+        i <- match(dates, dates(x))
+        if(any(is.na(i))) stop("some dates are not found")
+        }
+    if(missing(drop)) {drop <- FALSE}
     if(missing(i)) {i <- min(1,nrow(x)):nrow(x)}
     if(missing(j)) {j <- min(1,ncol(x)):ncol(x)}
-    if(missing(drop)) {drop <- FALSE}
     subx <- x@.Data[i, j, drop = drop]
     dates <- x@dates[i]
     ans <- new("its",
@@ -349,6 +495,26 @@ setMethod("[", c("its","ANY"),  function(x, i=min(1,nrow(x)):nrow(x), j=min(1,nc
             dates=dates)
     return(ans)
     })
+setReplaceMethod("[", signature(x="its", value="its"), function(x, i, j, ..., value) 
+    {
+    if(match("dates",names(list(...)),0)>0) 
+        {
+        dates <- list(...)[["dates"]]
+        if(!missing(i)) stop("cannot specify both dates and i")
+        if(!is(dates,"POSIXt")) stop("dates should be in POSIX format")
+        dates <- as.POSIXct(dates)
+        i <- match(dates, dates(x))
+        if(any(is.na(i))) stop("some dates are not found")
+        }
+    if(missing(i)) {i <- min(1,nrow(x)):nrow(x)}
+    if(missing(j)) {j <- min(1,ncol(x)):ncol(x)}
+    x@.Data[i, j] <- value@.Data
+    x@dates[i] <- value@dates
+    ans <- new("its",
+            core(x),
+            dates=dates(x))
+    return(ans)
+    })    
 #-Utility Functions-
 #addDimnames-function-----------------------------------------------
 addDimnames <- function(mat)
@@ -389,9 +555,10 @@ overlapmatchesIts <- function(x,y)
     {
     if (!inherits(x, "its")&inherits(y, "its")) stop("function is only valid for objects of class 'its'")
     if(!overlapsIts(x,y)) {stop("no overlap")}
-    if(max(as.numeric(x@dates))<max(as.numeric(y@dates)))
+    if(max(as.numeric(x@dates))<=max(as.numeric(y@dates)))
         {    xlow <- x;    xhigh <- y    } else
         {    xlow <- y;    xhigh <- x    }
+    if(min(as.numeric(xlow@dates))>min(as.numeric(xhigh@dates))) stop("appendor data must extend appendee data")
     lowoverlap <- which(as.numeric(xlow@dates)>=min(as.numeric(xhigh@dates)))
     highoverlap <- which(as.numeric(xhigh@dates)<=max(as.numeric(xlow@dates)))
     if(!identical(xlow@dates[lowoverlap],xhigh@dates[highoverlap]))
@@ -409,17 +576,14 @@ namesmatchIts <- function(x,y)
     return(namesmatch)
     }
 #its.format-function------------------------------------------------
-its.format <- function(format=NULL)
+its.format <- function(formatDefault=NULL)
     {
-    if(is.null(format))
+    if(is.null(formatDefault))
+        {outformat <- get(x=".itsformat",env=itsState,inherits=FALSE)} else
         {
-        if(!exists("its..format"))
-            {outformat <- "%Y-%m-%d"} else
-            {outformat <- its..format}
-        } else
-            {outformat <- format}
-    if(is.na(match("package:its",search()))) {its..format <<- outformat} else
-    {assign("its..format",outformat,pos="package:its")}
+        outformat <- formatDefault
+        assign(x=".itsformat",value=formatDefault,env=itsState,inherits=FALSE)    
+        }
     return(outformat)
     }
 #expandIts-function------------------------------------------------
@@ -441,4 +605,101 @@ expandIts <- function(x)
     dimnames(matexp) <- list(dimnames(x)[[1]],rep(dimnames(x)[[2]][1],nruns))
     result <- its(matexp,x@dates)
     result
+    }
+#extractDates-function----------------------------------------------
+extractDates <- function(
+                   dates,
+                   weekday=FALSE,
+                   find=c("all","last","first"),
+                   period=c("week","month"),
+                   partials=TRUE,
+                   select)
+    {    
+    find <- match.arg(find)
+    period <- match.arg(period)
+    myindex1 <- 1:length(dates)
+    #1  optionally point only to weekdays
+    if(weekday) 
+        {
+        wday <- as.POSIXlt(dates)$wday
+        myindex1 <- which( (0 < wday) & (wday < 6) )
+        }
+    if(period=="month") 
+        {
+        theperiod <- 100*as.POSIXlt(dates[myindex1])$year+as.POSIXlt(dates[myindex1])$mon
+        dayinperiod <- as.POSIXlt(dates[myindex1])$mday
+        } else if(period=="week")
+        {
+        theweek <- as.numeric(format(as.POSIXct(dates[myindex1]), "%U") )
+        theyear <- as.POSIXlt(dates[myindex1])$year
+        correctPartialWeek <- theweek!=0
+        theyear <- theyear[most.recent(correctPartialWeek)]    #first partial week in January assigned to last year
+        theweek <- theweek[most.recent(correctPartialWeek)]    #only incomplete Jan weeks are indexed 0 (see Jan 1995)
+        theperiod <- 100*theyear+theweek
+        dayinperiod <- as.POSIXlt(dates[myindex1])$wday
+        }
+    #2  if selecting based on 'find'
+    if(find=="all")
+        {
+        myindex2 <- 1:length(myindex1)
+        } else 
+        {
+        myindex2 <- setdiff(which(diff(c(theperiod[1],theperiod))!=0),1)
+        if(find=="last") 
+            {
+            myindex2 <- myindex2-1
+            }
+        if(partials)
+            {
+            if(find=="last") 
+                {
+                myindex2 <- unique(c(myindex2,length(myindex1)))
+                } else 
+                {
+                myindex2 <- unique(c(1,myindex2))
+                }
+            }
+        }
+    #3 select based on 'select'
+    if(missing(select)) 
+        {
+        myindex3 <- 1:length(myindex2)
+        } else
+        {
+        myindex3 <- which(dayinperiod[myindex2]%in%select)
+        }
+    myindex <- myindex1[myindex2][myindex3]
+    if(all(is.na(myindex))) myindex <- NULL
+    return(dates[myindex])
+    }
+#gencurves-function----------------------------------------------
+gencurves <- function(x)
+    {
+    curves <- vector("list",(ncol(x)))
+    for (j in 1:ncol(x))
+        {
+        curves[[j]] <- list(x=as.numeric(x@dates),y=as.numeric(x[,j]@.Data))
+        }
+    return(curves)
+    }
+#most.recent-function--------------------------------------------
+most.recent <- function(x) 
+    {
+    # return a vector of indices of the most recent TRUE value (thanks to Tony Plate)
+    if (!is.logical(x)) stop("x must be logical")
+    x.pos <- which(x)
+    if (length(x.pos)==0 || x.pos[1] != 1) x.pos <- c(1, x.pos)
+    rep(x.pos, c(diff(x.pos), length(x) - x.pos[length(x.pos)] + 1))
+    }
+#locf-function---------------------------------------------------
+locf <- function(x)
+    {
+    if (!inherits(x, "its")) stop("function is only valid for objects of class 'its'")
+    y <- x
+    jna <- which(apply(is.na(x),2,any))
+    for(j in jna)
+        {
+        y[,j] <- y[most.recent(!is.na(y[,j])),j]
+        }
+    return(y)
     }
