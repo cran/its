@@ -17,8 +17,8 @@ lagdistIts(x,kmin,kmax)
     assigned to a later timestamp}
 }
 \details{
-  \code{lag.its} returns an object with the same time-stamps, but with the data shifted.
-  \code{lagdist.its} applies lag.its over a range of lags, and appends these columns
+  \code{lagIts} returns an object with the same time-stamps, but with the data shifted.
+  \code{lagdistIts} applies lagIts over a range of lags, and appends these columns
 }
 \value{
 

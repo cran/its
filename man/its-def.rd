@@ -2,6 +2,7 @@
 \name{its-def}
 
 \alias{its}
+\alias{its-class}
 \alias{is.its}
 \alias{as.its}
 \alias{its.format}
@@ -51,7 +52,13 @@ its.format(format=NULL)
  matrix, with a single slot, the named POSIX vector named "dates".
  An object of class its inherits matrix arithmetic methods.  The matrix
  has dimnames: dimnames[[1]] is populated with a text representation of
- "dates", using a format which is defined by the function its.format.
+ "dates", using a format which is defined by the function its.format. These
+ text dates are not used in computations - all computations use the 
+ POSIX representation.  The dates are required to be in ascending order.
+ 
+ When matrix multiplication is applied to an "its", the result is of class
+ matrix.  It is possible to restore the "its" class (see examples) - its() 
+ is in this sense idempotent i.e. its(mat)==its(its(mat)).
 
  its.format returns a formatting string, and assigns a format variable
  \code{its..format} globally, which persists in the session until reset.

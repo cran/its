@@ -2,6 +2,7 @@
 \keyword{arith}
 \name{its-arith}
 \alias{its-arith}
+\alias{Arith,its,its-method}
 \alias{+}
 
 \title{Arithmetic Methods for Irregular Time-Series Objects}
@@ -24,10 +25,14 @@
 }
 \details{
 
-They return numeric vectors containing the result of the element by element
-operations.  The arguments must be conformable (same dimensions) and their
-time-stamps must match for each row.
+The arithmetic operators return numeric vectors containing the result of the 
+element-by-element operations.  The arguments must be conformable (same dimensions) 
+and their time-stamps must match for each row.
 
+Note that the matrix multiplication operator, %*%, is inherited from matrix,
+and the result of a matrix multiplication is a matrix, not an \code{"its"}.
+The resulting matrix can be converted back to its using the function its() 
+- see examples.
 }
 
 \value{
@@ -58,5 +63,7 @@ a <- matrix(c(seq(by=24*60*60,length=20),1:20,41:60),nrow=20,ncol=3)
 b <- as.its(a)
 b+b-2*b
 b/b
+b%*%diag(ncol(b))
+its(b%*%diag(ncol(b))) 
 }
 }

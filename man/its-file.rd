@@ -20,17 +20,21 @@ sep=",",...)
   \item{header}{see \code{\link{read.csv}}}
   \item{col.names, sep}{see \code{\link{write.table}}}
   \item{\dots}{further arguments passed to or from other methods: for
-    \code{readcsv.its} passed to \code{\link{read.csv}}; for
-    \code{writecsv.its} passed to \code{\link{write.table}}}
+    \code{readcsvIts} passed to \code{\link{read.csv}}; for
+    \code{writecsvIts} passed to \code{\link{write.table}}}
 }
 \details{
-  \code{readcsv.its} reads from a .csv file to an irregular time-series object.
+  \code{readcsvIts} reads from a .csv file to a matrix.  The first column is assumed to
+  contain dates in text format specified by informat, which can optionally be
+  reformatted into the text format outformat.  Both of these formats default to the
+  format specified by \code{\link{its.format}}.  To convert the matrix to an its, use 
+  \code{\link{its}} (see example)
 
-  \code{writecsv.its} write an irregular time-series object to a text file.
+  \code{writecsvIts} write an irregular time-series object to a text file.
 }
 \value{
 
-  For \code{readcsv.its} an object of class \code{"its"}.
+  For \code{readcsvIts} a matrix
 
 }
 \author{Giles Heywood}
@@ -57,7 +61,7 @@ fname <- tempfile()
 # To write an irregular time-series object to a file one might use
 writecsvIts(b,filename=fname)
 # To read an irregular time-series object from a file one might use
-readcsvIts(filename=fname,informat=its.format())
+its(readcsvIts(filename=fname))
 unlink(fname)
 }
 }

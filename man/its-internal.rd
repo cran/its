@@ -1,10 +1,11 @@
 \keyword{internal}
-\name{its-utilities}
+\name{its-internal}
 \alias{addDimnames}
 \alias{gapIts}
 \alias{overlapsIts}
 \alias{overlapmatchesIts}
 \alias{namesmatchIts}
+\alias{expandIts}
 \alias{plotIts}
 \alias{printIts}
 \alias{startIts}
@@ -13,10 +14,12 @@
 \alias{cumsumIts}
 \alias{diffIts}
 \alias{validIts}
+\alias{unionIts}
+\alias{intersectIts}
 
-\title{Utility Functions for Irregular Time-Series Objects}
+\title{Internal Functions for Irregular Time-Series Objects}
 \description{
-  Utility functions for objects of class \code{"its"}.
+  Internal functions for objects of class \code{"its"}.
 }
 \usage{
 
@@ -25,8 +28,9 @@ gapIts(x,y,maxgap)
 overlapsIts(x,y)
 overlapmatchesIts(x,y)
 namesmatchIts(x,y)
-plotIts(x,y,colvec=1:ncol(x),groupsize=m,type="l",ltyps="sequence",
-                        leg=FALSE,yrange=NA,format=NA,...)
+expandIts(x)
+plotIts(x,y,colvec=1:ncol(x),type="l",ltypvec=1,lwdvec=1,
+       leg=FALSE,yrange,format,at,interp=c("linear","none"),...)
 printIts(x,...)
 startIts(x,format=its.format(),...)
 endIts(x,format=its.format(),...)
@@ -34,17 +38,19 @@ summaryIts(object,...)
 cumsumIts(x)
 diffIts(x,lag=1)
 validIts(object)
+unionIts(x,y)
+intersectIts(x,y)
 
 }
 \arguments{
   \item{mat}{a matrix}
-  \item{x,y,object}{objects of class \code{"its"}}
+  \item{x,y,object,e1,e2}{objects of class \code{"its"}}
   \item{maxgap}{a numeric scalar}
   \item{type}{plot type, see \code{\link{par}}.}
-  \item{colvec,ltyps}{vectors of colour codes, line types, see \code{\link{par}}.}
-  \item{groupsize}{colours are recycled after this number have been used.}
+  \item{colvec,ltypvec,lwdvec}{vectors of colour codes, line types, and line widths: see \code{\link{par}}.}
   \item{leg}{logical flag to display legend; uses \code{locator} for position.}
   \item{yrange}{ordinate range for display.}
+  \item{at}{a vector of POSIX dates defining tickmark locations on axis: see \code{\link{axis.POSIXct}}}
   \item{format}{a formatting string, see \code{\link{format.POSIXct}}, for the axis dates}
   \item{\dots}{further arguments passed to or from other methods:
     for \code{start} and \code{end}, passed to \code{\link{format.POSIXct}.} }
@@ -60,7 +66,8 @@ addDimnames adds dimnames (strings representing row and column number) if absent
 gapIts tests for the present of a gap in the time-stamps of its inputs
 overlapsIts tests for the presence of overlap in the time-stamps of its inputs
 overlapmatchesIts tests for equality of overlapping data in its inputs
-namesmatchIts tests for equality of culumn names of its inputs
+namesmatchIts tests for equality of column names of its inputs
+expandIts splits a single series into a number of series, each with a single run of non-NA data.
 Other functions are the \code{setMethod} \code{definition} for the associated generic.
 }
 

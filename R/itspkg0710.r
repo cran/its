@@ -1,3 +1,4 @@
+require("methods")
 setClass("its",representation("matrix",dates="POSIXt"))
 #-Methods-
 #arith-methods------------------------------------------------------
@@ -12,30 +13,47 @@ setMethod("Arith",signature(e1="its",e2="its"),
 #plot-method--------------------------------------------------------
 if(!isGeneric("plot")) setGeneric("plot")
 setMethod("plot",signature(x="its",y="missing"),
-    plotIts <- function(x,y,colvec=1:ncol(x),groupsize=m,type="l",ltyps="sequence",
-                        leg=FALSE,yrange=NA,format=NA,...)
+    plotIts <- function(x,y,colvec=1:ncol(x),type="l",ltypvec=1,lwdvec=1,
+                        leg=FALSE,yrange,format,at,interp=c("linear","none"),...) 
     {
-    if(is.na(yrange[1])){ylim <- c(min(x,na.rm=TRUE),max(x,na.rm=TRUE))} else {ylim <- yrange}
-    xdates  <- x@dates
-    n       <- dim(x)[1]
-    m       <- dim(x)[2]
-    if(ltyps=="sequence"){ltypvec <- 1:m} else {ltypvec <- rep(1,m)}
-    vpoints <- c(1,which(!is.na(x[,1])),n)
-    plot.POSIXct(x=xdates[vpoints],y=x[vpoints,1],type=type,col=colvec[1],
-                ylim=ylim,xaxt="n",...)
-    grid()
-    if(is.na(format))axis.POSIXct(x=xdates[vpoints],side=1) else
-            axis.POSIXct(x=xdates[vpoints],side=1,format=format)
-    if(m>1){
-    for(i in 2:m)
+    if(missing(yrange)){ylim <- range(x,na.rm=TRUE)} else {ylim <- yrange}
+    interp <- match.arg(interp)
+    firstp <- TRUE
+    xdates <- x@dates
+    n <- dim(x)[1]
+    m <- dim(x)[2]
+    #make line control parameters correct length
+    colveclong <- rep(colvec,length.out=m)
+    ltypveclong <- rep(ltypvec,length.out=m)
+    lwdveclong <- rep(lwdvec,length.out=m)
+    for(i in 1:m)
         {
-        par(new=TRUE)
-        vpoints <- c(1,which(!is.na(x[,i])),n)
-        plot.POSIXct(x=xdates[vpoints],y=x[vpoints,i],type=type,
-                    col=colvec[(i-1)%%groupsize+1],ylim=ylim,lty=ltypvec[i],xaxt="n",...)
+        if(interp=="linear") 
+            {
+            vpoints <- c(1,which(!is.na(x[,i])),n)
+            xxx <- x[,i]
+            } else
+            {
+            vpoints <- 1:n
+            xxx <- expandIts(x[,i])
+            }
+        for (j in 1:ncol(xxx))
+            {
+            if(!firstp){par(new=TRUE)}else {firstp <- FALSE}
+            plot.POSIXct(x=xdates[vpoints],
+                        y=xxx[vpoints,j],
+                        type=type,
+                        col=colveclong[i],
+                        ylim=ylim,
+                        lty=ltypveclong[i],
+                        lwd=lwdveclong[i],
+                        xaxt="n",
+                        ...)
+            }
         }
-    }
-    if(leg){legend(locator(1),legend=dimnames(x)[[2]],fill=colvec,bty="n",col=colvec)}
+    grid()
+    axis.POSIXct(x=xdates[vpoints],side=1,at=at,format=format)
+    if(leg){legend(locator(1),legend=dimnames(x)[[2]],fill=colveclong,bty="n",col=colveclong)}
     }
     )
 #print-method-------------------------------------------------------
@@ -124,7 +142,7 @@ setMethod("union",signature(x="its",y="its"),unionIts)
 setMethod("union",signature(x="its",y="NULL"),unionIts)
 setMethod("union",signature(x="NULL",y="its"),unionIts)
 
-#intersect--------------------------------------------------------
+#intersect-method---------------------------------------------------
 if(!isGeneric("intersect")) {setGeneric("intersect")}
 intersectIts <- function(x,y)
     {
@@ -259,6 +277,8 @@ alignedIts <- function(obj1,obj2,print=FALSE)
 #appendIts-function-------------------------------------------------
 appendIts <- function(obj1,obj2,but=TRUE,matchnames=TRUE)
     {
+    if(is.null(obj1)&inherits(obj2, "its")) return(obj2)
+    if(is.null(obj2)&inherits(obj1, "its")) return(obj1)
     if (!inherits(obj1, "its")&inherits(obj2, "its")) stop("function is only valid for objects of class 'its'")
     overlap <- overlapsIts(obj1,obj2)
     if(overlap & but) stop("overlap not allowed")
@@ -305,7 +325,6 @@ rangeIts <- function(x,start=startIts(x),end=endIts(x),format=its.format(),...)
     end.posix <- as.POSIXct(x=strptime(end,format=format),...)
     return(x[which((x@dates>=start.posix) & (x@dates<=end.posix)),])
     }
-
 #-Utility Methods-
 #validity check----------------------------------------------------
 validIts <-  function(object)
@@ -323,19 +342,13 @@ setMethod("[", c("its","ANY"),  function(x, i=min(1,nrow(x)):nrow(x), j=min(1,nc
     if(missing(i)) {i <- min(1,nrow(x)):nrow(x)}
     if(missing(j)) {j <- min(1,ncol(x)):ncol(x)}
     if(missing(drop)) {drop <- FALSE}
-    if(is.logical(i))
-        {ans  <- x@.Data[i]}
-    else
-        {
-        subx <- x@.Data[i, j, drop = drop]
-        dates <- x@dates[i]
-        ans <- new("its",
+    subx <- x@.Data[i, j, drop = drop]
+    dates <- x@dates[i]
+    ans <- new("its",
             subx,
             dates=dates)
-        }
     return(ans)
     })
-
 #-Utility Functions-
 #addDimnames-function-----------------------------------------------
 addDimnames <- function(mat)
@@ -383,7 +396,7 @@ overlapmatchesIts <- function(x,y)
     highoverlap <- which(as.numeric(xhigh@dates)<=max(as.numeric(xlow@dates)))
     if(!identical(xlow@dates[lowoverlap],xhigh@dates[highoverlap]))
         {mymatch <- FALSE} else
-        {mymatch <- identical(xlow[lowoverlap,],xhigh[highoverlap,],na.rm=TRUE)}
+        {mymatch <- identical(all.equal(xlow[lowoverlap,],xhigh[highoverlap,]),TRUE)}
     return(mymatch)
     }
 #namesmatchIts-function--------------------------------------------
@@ -408,4 +421,24 @@ its.format <- function(format=NULL)
     if(is.na(match("package:its",search()))) {its..format <<- outformat} else
     {assign("its..format",outformat,pos="package:its")}
     return(outformat)
+    }
+#expandIts-function------------------------------------------------
+expandIts <- function(x)
+    {
+    #takes a single column 'its', if there are NAs, splits it into columns
+    #each column having only a single run of non-NA data
+    if(all(is.na(x))) return(x)
+    mat <- rbind(x[1,1,drop=FALSE]*NA,x[,1,drop=FALSE],x[nrow(x),1,drop=FALSE]*NA)
+    ib <- which(diff(is.na(mat))==-1)
+    ie <- which(diff(is.na(mat))==1)
+    nruns <- length(ib)
+    matexp <- matrix(NA,nrow=nrow(x),ncol=nruns)
+    for(i in 1:nruns) 
+        {
+        irun <- ib[i]:(ie[i]-1)
+        matexp[irun,i] <- x[irun,1,drop=FALSE]
+        }
+    dimnames(matexp) <- list(dimnames(x)[[1]],rep(dimnames(x)[[2]][1],nruns))
+    result <- its(matexp,x@dates)
+    result
     }

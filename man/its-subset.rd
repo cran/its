@@ -3,12 +3,13 @@
 \alias{its-subset}
 \alias{rangeIts}
 \alias{x[i,j]}
-\title{Subsetting Functions for Irregular Time-Series Objects}
+\alias{[,its-method}
+\title{Range and Extract for Irregular Time-Series Objects}
 \description{
-  Subsetting functions for objects of class \code{"its"}.
+  Range and extratct for objects of class \code{"its"}.
 }
 \usage{
-rangeIts(x,start=start.its(x),end=end.its(x),format=its.format(),...)
+rangeIts(x,start=startIts(x),end=endIts(x),format=its.format(),...)
 x[i,j]
 }
 \arguments{
@@ -24,7 +25,7 @@ x[i,j]
   \code{rangeIts} selects a range of rows that fall between two times, specified
   in text format.
 
-  \code{x[i,j]} subscripting of an irregular time-series proceeds as for a matrix, with
+  \code{x[i,j]} extractor method for an irregular time-series proceeds as for a matrix, with
   the exception that drop=FALSE is enforced, so the result always inherits from matrix.
 }
 \value{
