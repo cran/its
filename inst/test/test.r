@@ -464,6 +464,7 @@ if(as.numeric(R.Version()$major)*100+as.numeric(R.Version()$minor)*10>=1080 & Ne
 #itsPrice***********************************************************
 #creat a (static) set of securities
 #3 indices, 3 stocks
+x <- priceIts()
 if(require(Rblp))
 {
 b <- blpConnect()
@@ -558,8 +559,8 @@ cat(
         "******************************\n")
     )    
 }
-#print(system.time(testIts(New=TRUE,graph=TRUE)))
-require(its)
-require(Rblp)
+#require(its)
+#require(Rblp)
 print(system.time(testIts(New=TRUE,graph=FALSE)))
+print(system.time(testIts(New=TRUE,graph=TRUE)))
 

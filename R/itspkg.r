@@ -758,8 +758,20 @@ priceIts <- function (instruments = "^gdax", start, end, quote = c("Open",
             unlink(destfile)
             stop(paste("No data available for", instruments[i]))
             }
-        y <- readcsvIts(destfile,informat="%d-%b-%y")
-        oneinstrument <- its(y[nrow(y):1,])[,quote]
+#        y <- readcsvIts(destfile,informat="%d-%b-%y")
+#        oneinstrument <- its(y[nrow(y):1,])[,quote]
+## edd 23 April 2004  need to manually read and remove last line due to 
+##                    Yahoo! now adding a trailing html comment 
+## better version with help from Peter Dalgaard 
+v <- readLines(destfile)             
+cl <- grep("^<!",v)                 # look for html comments 
+if (length(cl)) v <- v[-cl]         # and invert the grep 
+data <- read.csv(textConnection(v)) # load all that do not match           
+data <- data[nrow(data):1,]         # and inverse order in data   
+y <- its(as.matrix(data[,-1]),                                             
+         dates=strptime(as.character(data[,1]), format="%d-%b-%y")) 
+oneinstrument <- its(y)[,quote] 
+
         names(oneinstrument) <- paste(instruments[i],quote)
         allinstruments <- union(allinstruments,oneinstrument)
         }

@@ -1,5 +1,8 @@
 its package release notes
 
+1.0.3   2004-04-16
+1   fixed bug in priceIts() using patch from Dirk Eddelbuettel
+
 1.0.2   2004-04-16
 1   fixed bug in newIts()
 
