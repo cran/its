@@ -50,6 +50,7 @@ An object of class \code{"its"}
   \code{\link{itsInfo}}
   \code{\link{itsCumdif}}
   \code{\link{itsArith}}
+  \code{\link{itsInterp}}  
 }
 
 \examples{

@@ -38,6 +38,7 @@ accrueIts(x,daysperyear=365)
   \code{\link{itsInfo}}
   \code{\link{itsCumdif}}
   \code{\link{itsArith}}
+  \code{\link{itsInterp}}  
 }
 \examples{
 a <- matrix(c(seq(by=24*60*60,length=20),1:20,41:60),nrow=20,ncol=3)

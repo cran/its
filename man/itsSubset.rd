@@ -12,7 +12,7 @@
   Range and extract for objects of class \code{"its"}.
 }
 \usage{
-rangeIts(x,start=dates(x)[1],end=dates(x)[n],format=its.format(),...)
+rangeIts(x,start=dates(x)[1],end=dates(x)[nrow(x)],format=its.format(),...)
 extractIts(x,weekday=FALSE,find=c("all","last","first"),period=c("week","month"),partials=TRUE,select)
 x[i,j,dates]
 }
@@ -69,6 +69,7 @@ x[i,j,dates]
   \code{\link{itsInfo}},
   \code{\link{itsCumdif}},
   \code{\link{itsArith}}
+  \code{\link{itsInterp}}  
 }
 
 \examples{

@@ -1,21 +1,20 @@
 Release procedure
 
-Testing and development f:/projects/irregulartimeseries/itsvi.j.k/its
+Testing and development h:/dev/its
 
-Final checks in folder f:/projects/irregulartimeseries/itsvi.j.k at command prompt:
+Final checks :
 Rcmd CHECK its
 Rcmd build --force its
 Rcmd build --binary its
 Rcmd INSTALL --save its
 
 Run the test procedure /inst/test.r
-install from binary & run test procedure
 
-Copy files to f:/R-win32/prag-packages/its/ and at command prompt:
-Rcmd CHECK its
-Rcmd build --force its
-Rcmd build --binary its
-Rcmd INSTALL --save its
+Install from binary & run test procedure
+
+CVS commit and tag
+
+Protect .tar.gz
 
 FTP upload of .tar.gz at the command prompt:
 ftp ftp-proxy

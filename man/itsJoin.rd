@@ -76,6 +76,7 @@ For \code{alignedIts}, a list of two objects of class \code{"its"}
   \code{\link{itsInfo}},
   \code{\link{itsCumdif}},
   \code{\link{itsArith}}
+  \code{\link{itsInterp}}  
 }
 
 \examples{

@@ -68,6 +68,7 @@ The methods are called for their side-effects.
   \code{\link{itsInfo}},
   \code{\link{itsCumdif}},
   \code{\link{itsArith}}
+  \code{\link{itsInterp}}  
 }
 
 \examples{

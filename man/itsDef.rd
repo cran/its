@@ -5,6 +5,7 @@
 \alias{its-class}
 \alias{is.its}
 \alias{as.its}
+\alias{coerce,its,data.frame-method}
 \alias{its.format}
 \alias{newIts}
 
@@ -118,7 +119,8 @@ see \code{\link{format.POSIXct}}
   \code{\link{itsDisp}},
   \code{\link{itsInfo}},
   \code{\link{itsCumdif}},
-  \code{\link{itsArith}}
+  \code{\link{itsArith}},
+  \code{\link{itsInterp}}  
   }
 
 \examples{
@@ -136,4 +138,5 @@ as.its(mat)
 its.format("\%a \%d \%b \%Y")
 newIts(start="2003-09-30",end="2005-05-05",format="\%Y-\%m-\%d",period="month",find="last",extract=TRUE,weekday=TRUE)
 newIts(start=ISOdate(2003,12,24,0),end=ISOdate(2004,1,10),extract=TRUE,weekday=TRUE)
+as(newIts(),"data.frame")
 }

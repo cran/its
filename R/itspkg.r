@@ -4,7 +4,6 @@ assign(x=".itsformat", value="%Y-%m-%d" , env=itsState)
 setClass("its",representation("matrix",dates="POSIXt"))
 #-Methods-
 #names-method-------------------------------------------------------
-if(!isGeneric("names")) {setGeneric("names")}
 setMethod("names",signature(x="its"),
     namesIts <- function(x)
     {
@@ -12,7 +11,6 @@ setMethod("names",signature(x="its"),
     }
     )
 #"names<-"-method---------------------------------------------------
-if(!isGeneric("names<-")) {setGeneric("names<-", function(x,value) standardGeneric("names<-"))}
 setMethod("names<-",signature(x="its",value="character"),
     "names<-Its" <- function(x,value)
     {
@@ -34,6 +32,8 @@ if(!isGeneric("dates<-")) {setGeneric("dates<-", function(x,value) standardGener
 setMethod("dates<-",signature(x="its",value="POSIXt"),
     "dates<-Its" <- function(x,value)
     {
+    if(!is(value,"POSIXt")) stop("dates should be in POSIX format")
+    value <- as.POSIXct(value)
     result <- its(x@.Data,value)
     return(result)
     }
@@ -127,12 +127,10 @@ setMethod("plot",signature(x="its",y="missing"),
     }
     )
 #print-method-------------------------------------------------------
-if(!isGeneric("print")) {setGeneric("print")}
 setMethod("print",signature(x="its"),
     printIts <- function(x,...){print(x@.Data,...)}
     )
 #start-method-------------------------------------------------------
-if(!isGeneric("start")) {setGeneric("start", useAsDefault=start)}
 setMethod("start",signature(x="its"),
     startIts <- function(x,format=its.format(),...)
     {
@@ -140,23 +138,21 @@ setMethod("start",signature(x="its"),
     }
     )
 #end -method--------------------------------------------------------
-if(!isGeneric("end")) {setGeneric("end", useAsDefault=end)}
 setMethod("end",signature(x="its"),
     endIts <- function(x,format=its.format(),...)
     {
     return(format(x@dates[length(x@dates)],format=format,...))
     }
-    )
+    )    
 #summary-method-----------------------------------------------------
-if(!isGeneric("summary")) {setGeneric("summary")}
 setMethod("summary",signature(object="its"),
     summaryIts <- function(object,...)
     {
     r1 <- apply(object,2,min,na.rm=TRUE)
-    r2a <- apply(object,2,quantile,probs=.25)
-    r2b <- apply(object,2,quantile,probs=.5)
+    r2a <- apply(object,2,quantile,probs=.25,na.rm=TRUE)
+    r2b <- apply(object,2,quantile,probs=.5,na.rm=TRUE)
     r3 <- apply(object,2,mean,na.rm=TRUE)
-    r4 <- apply(object,2,quantile,probs=.75)
+    r4 <- apply(object,2,quantile,probs=.75,na.rm=TRUE)
     r5 <- apply(object,2,max,na.rm=TRUE)
     r6 <- apply(is.na(object),2,sum,na.rm=TRUE)
     r7 <- rep(nrow(object),ncol(object))-r6
@@ -178,7 +174,6 @@ setMethod("cumsum",signature(x="its"),
     }
     )
 #diff-method--------------------------------------------------------
-if(!isGeneric("diff")) {setGeneric("diff")}
 setMethod("diff",signature(x="its"),
     diffIts <- function(x,lag=1)
     {
@@ -189,7 +184,6 @@ setMethod("diff",signature(x="its"),
     }
     )
 #union-method-------------------------------------------------------
-if(!isGeneric("union")) {setGeneric("union")}
 unionIts <- function(x,y)
     {
     if(!is.null(x)&!is.null(y))
@@ -217,7 +211,6 @@ setMethod("union",signature(x="its",y="NULL"),unionIts)
 setMethod("union",signature(x="NULL",y="its"),unionIts)
 
 #intersect-method---------------------------------------------------
-if(!isGeneric("intersect")) {setGeneric("intersect")}
 intersectIts <- function(x,y)
     {
     if(!is.null(x)&!is.null(y))
@@ -247,6 +240,8 @@ intersectIts <- function(x,y)
 setMethod("intersect",signature(x="its",y="its"),intersectIts)
 setMethod("intersect",signature(x="its",y="NULL"),intersectIts)
 setMethod("intersect",signature(x="NULL",y="its"),intersectIts)
+#as-method--------------------------------------------------------
+setAs(from="its",to="data.frame",def=function(from) {data.frame(core(from))})
 
 #-Functions-
 #readcsvIts-function------------------------------------------------
@@ -263,13 +258,29 @@ readcsvIts <- function(filename,informat=its.format(),outformat=its.format(),tz=
     return(datamat)
     }
 #writecsvIts-function-----------------------------------------------
-writecsvIts <- function(x,filename,format=its.format(),tz="",usetz=FALSE,col.names=NA,sep=",",...)
+writecsvIts <- function(x,filename,format=its.format(),tz="",usetz=FALSE,col.names=NA,sep=",",split=FALSE,...)
     {
     if (!inherits(x, "its")) stop("function is only valid for objects of class 'its'")
     dimnames(x)[[1]] <- format(x@dates,format=format,tz=tz,usetz=usetz)
     y <- data.frame(x@.Data)
     dimnames(y) <- dimnames(x)
-    mydata <- write.table(y,file=filename,col.names=col.names,sep=sep,...)
+    if(split & ncol(x)>255)
+        {
+        jstart <- 1
+        jend <- 255
+        j <- 0
+        while(jstart<ncol(x))
+            {
+            j <- j+1
+            fnam <- paste(strsplit(filename,"\\.")[[1]],collapse=paste(j,".",sep=""))
+            write.table(y[,jstart:jend],file=fnam,col.names=col.names,sep=sep,...)
+            jstart <- jend+1
+            jend <- min(c(jstart+254,ncol(x)))
+            }
+        } else
+        {
+        mydata <- write.table(y,file=filename,col.names=col.names,sep=sep,...)
+        }
     }
 
 #accrueIts-function-------------------------------------------------
@@ -286,6 +297,8 @@ its <- function(x,
                 dates=as.POSIXct(x=strptime(dimnames(x)[[1]],format=its.format())),
                 names=dimnames(x)[[2]],format=its.format(),...)
     {
+    if(!is(dates,"POSIXt")) stop("dates should be in POSIX format")
+    dates <- as.POSIXct(dates)
     if(is.null(dim(x))){dim(x) <- c(length(x),1)}
     x <- addDimnames(x)
     if(!(nrow(x)==length(dates))) {stop("dates length must match matrix nrows")}
@@ -392,12 +405,15 @@ weekdayIts <- function (x,...)
     return((0 < day) & (day < 6))
     }
 #rangeIts-function--------------------------------------------------
-rangeIts <- function(x,start=dates(x)[1],end=dates(x)[n],format=its.format(),...)
+rangeIts <- function(x,start=dates(x)[1],end=dates(x)[nrow(x)],format=its.format(),...)
     {
     if (!inherits(x, "its")) stop("function is only valid for objects of class 'its'")
-    n <- nrow(x)
     if(mode(start)=="character") {start <- as.POSIXct(x=strptime(start,format=format),...)}
     if(mode(end)=="character") {end <- as.POSIXct(x=strptime(end,format=format),...)}
+    if(!is(start,"POSIXt")) stop("start should be in POSIX format")
+    if(!is(end,"POSIXt")) stop("end should be in POSIX format")
+    start <- as.POSIXct(start)
+    end <- as.POSIXct(end)
     return(x[which((x@dates>=start) & (x@dates<=end)),])
     }
 #newIts-function----------------------------------------------------
@@ -412,11 +428,11 @@ newIts <- function(x=NA,
     {
     if(mode(start)=="character") 
         {start.p <- as.POSIXct(x=strptime(start,format=format),tz="UTM")} else
-        {start.p <- start}
+        {start.p <- as.POSIXct(start)}
     if(missing(end)) {end <- format(start.p+9*24*60*60,format=its.format())}
     if(mode(end)=="character") 
         {end.p <- as.POSIXct(x=strptime(end,format=format),tz="UTM")} else
-        {end.p <- end}
+        {end.p <- as.POSIXct(end)}
     dates <- seq(from=start.p,by=by,to=end.p)
     if(extract) {dates <- extractDates(dates=dates,...)}
     result <- its(matrix(x,ncol=ncol,nrow=length(dates)),dates)
@@ -703,3 +719,49 @@ locf <- function(x)
         }
     return(y)
     }
+
+
+#priceIts-function-------------------------------------------------
+priceIts <- function (instruments = "^gdax", start, end, quote = c("Open", 
+    "High", "Low", "Close"), provider = "yahoo", method = "auto", 
+    origin = "1899-12-30",quiet=TRUE) 
+    {
+    if (provider != "yahoo") stop("provider not implemented")
+    allinstruments <- NULL
+    
+    if (missing(start)) 
+        start <- "1991-01-02"
+    if (missing(end)) 
+        end <- format(Sys.time() - 86400, "%Y-%m-%d")
+    provider <- match.arg(provider)
+    start <- as.POSIXct(start, tz = "GMT")
+    end <- as.POSIXct(end, tz = "GMT")
+    for(i in 1:length(instruments))
+        {
+        url <- paste("http://chart.yahoo.com/table.csv?s=", instruments[i], 
+            format(start, paste("&a=", as.character(as.numeric(format(start, 
+                "%m")) - 1), "&b=%d&c=%Y", sep = "")), format(end, 
+                paste("&d=", as.character(as.numeric(format(end, 
+                  "%m")) - 1), "&e=%d&f=%Y", sep = "")), "&g=d&q=q&y=0&z=", 
+            instruments[i], "&x=.csv", sep = "")
+        destfile <- tempfile()
+        status <- download.file(url, destfile, method = method, quiet=quiet)
+        if (status != 0) 
+            {
+            unlink(destfile)
+            stop(paste("download error, status", status))
+            }
+        nlines <- length(count.fields(destfile, sep = "\n"))
+        if (nlines == 1) 
+            {
+            unlink(destfile)
+            stop(paste("No data available for", instruments[i]))
+            }
+        y <- readcsvIts(destfile,informat="%d-%b-%y")
+        oneinstrument <- its(y[nrow(y):1,])[,quote]
+        names(oneinstrument) <- paste(instruments[i],quote)
+        allinstruments <- union(allinstruments,oneinstrument)
+        }
+    return(allinstruments)
+    }
+

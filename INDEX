@@ -7,12 +7,15 @@ itsCumdif               Cumulation, Differencing for Irregular
 itsDef                  Irregularly Spaced Time-Series
 itsDisp                 Display Methods for Irregular Time-Series
                         Objects
+priceIts                Download Historical Finance Data
 itsFile                 File Operations for Irregular Time-Series
                         Objects
 itsFin                  Financial Functions for Irregular Time-Series
                         Objects
 itsInfo                 Summary Information for Irregular Time-Series
                         Objects
+itsInterp               Interpolation Functions for Irregular
+                        Time-Series Objects
 itsJoin                 Join Functions for Irregular Time-Series
                         Objects
 itsLags                 Lag Functions for Irregular Time-Series

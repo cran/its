@@ -55,6 +55,7 @@ inputs, and with identical time-stamps.
   \code{\link{itsDisp}}
   \code{\link{itsInfo}}
   \code{\link{itsCumdif}}
+  \code{\link{itsInterp}}  
 }
 
 \examples{

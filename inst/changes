@@ -1,5 +1,14 @@
 its package release notes
 
+1.0.0   2004-02-12 [n.b. for version>=1.9.0 will need additional namespace directive import(stats)]
+0   licence changed to GPL Version 2
+1   new function 'locf()' (last observation carry forward)
+2   writecsvIts gets extra option 'split' to split large files
+3   as(its,"data.frame") implemented
+4   POSIXlt arguments are coerced to POSIXct
+5   NA handled properly in summary()
+6   new function priceIts()
+
 0.2.1   2004-01-06
 1   bugfix version to pass Rcmd check on R-devel (0.2.0 not released on CRAN)
     some fixes to method documentation

@@ -1,6 +1,3 @@
-New <- TRUE
-graph <- FALSE
-require(its)
 testIts <- function(graph=FALSE,New=TRUE)
 {
 addDimnames <- function(mat)
@@ -464,6 +461,44 @@ if(as.numeric(R.Version()$major)*100+as.numeric(R.Version()$minor)*10>=1080 & Ne
     bar <- try(collapseIts(foo),silent=TRUE)
     test(bar=="Error in collapseIts(foo) : column data must match in collapse function\n")
     }
+#itsPrice***********************************************************
+#creat a (static) set of securities
+#3 indices, 3 stocks
+if(require(Rblp))
+{
+b <- blpConnect()
+yahtkrs <- c("^gdax","^ftse","^spx")
+blptkrs <- c("dax index","ukx index","spx index")
+startdate <- "2004-02-01"
+enddate <- "2004-02-10"
+yahitemslist <- c("Close","Open")
+blpitemslist <- c("LAST_PRICE","PX_OPEN")
+for(j in 1:length(yahitemslist))
+    {
+    yahooPrice <- priceIts(instrument = yahtkrs, 
+        start=startdate, 
+        end=enddate, 
+        quote = yahitemslist[j], 
+        provider = "yahoo", 
+        method = "auto", 
+        origin = "1899-12-30") 
+    blpPrice <- NULL
+    for(i in 1:length(blptkrs))
+        {
+         blpPrice <- union(blpPrice,getBLPTimeSeries(b, 
+            blpCodes = blptkrs[i], 
+            blpItems = blpitemslist[j], 
+            currency = "LOC", 
+            startDate = as.POSIXct(startdate,its.format()), 
+            endDate = as.POSIXct(enddate,its.format()), 
+            reqSize = 20))
+        }
+    class(blpPrice)    
+    names(blpPrice) <- blptkrs
+    foo <- union(yahooPrice[,1:3],blpPrice[,1:3])
+    test(var(as.numeric(core(foo[,1:3]-foo[,4:6])),na.rm=T)==0)
+    }
+}
 #its-utilities******************************************************
 ###########################################################################################
 #fromirtsIts-function------------------------------------------------
@@ -523,5 +558,8 @@ cat(
         "******************************\n")
     )    
 }
-print(system.time(testIts(New=TRUE,graph=TRUE)))
+#print(system.time(testIts(New=TRUE,graph=TRUE)))
+require(its)
+require(Rblp)
 print(system.time(testIts(New=TRUE,graph=FALSE)))
+

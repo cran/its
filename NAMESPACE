@@ -1,4 +1,3 @@
-exportClass("its")
 import(methods)
 export( readcsvIts,
         writecsvIts,
@@ -16,9 +15,12 @@ export( readcsvIts,
         newIts,
         extractIts,
         collapseIts,
-        its.format
+        its.format,
+        locf,
+        priceIts
         )
 
+exportClasses("its")
 exportMethods(
         Arith,
         "[",
@@ -36,5 +38,6 @@ exportMethods(
         cumsum,
         diff,
         union,
-        intersect
+        intersect,
+        coerce
         )

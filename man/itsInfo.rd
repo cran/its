@@ -58,6 +58,7 @@ For \code{summary}, a table of summary statistics for each series
   \code{\link{itsInfo}}
   \code{\link{itsCumdif}}
   \code{\link{itsArith}}
+  \code{\link{itsInterp}}  
 }
 
 \examples{

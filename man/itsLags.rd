@@ -40,6 +40,7 @@ lagdistIts(x,kmin,kmax)
   \code{\link{itsInfo}}
   \code{\link{itsCumdif}}
   \code{\link{itsArith}}
+  \code{\link{itsInterp}}  
 }
 
 \examples{

@@ -11,7 +11,7 @@
 readcsvIts(filename,informat=its.format(),outformat=its.format(),tz="",
 usetz=FALSE,header=TRUE,...)
 writecsvIts(x,filename,format=its.format(),tz="",usetz=FALSE,col.names=NA,
-sep=",",...)
+sep=",",split=FALSE,...)
 }
 \arguments{
   \item{filename}{filename}
@@ -19,6 +19,7 @@ sep=",",...)
   \item{format, informat, outformat, tz, usetz}{formatting related arguments, see \code{\link{format.POSIXct}}.}
   \item{header}{see \code{\link{read.csv}}}
   \item{col.names, sep}{see \code{\link{write.table}}}
+  \item{split}{when columns exceed 255 in number, flags for splitting into numbered subfiles}
   \item{\dots}{further arguments passed to or from other methods: for
     \code{readcsvIts} passed to \code{\link{read.csv}}; for
     \code{writecsvIts} passed to \code{\link{write.table}}}
@@ -52,6 +53,7 @@ sep=",",...)
   \code{\link{itsInfo}}
   \code{\link{itsCumdif}}
   \code{\link{itsArith}}
+  \code{\link{itsInterp}}  
 }
 \examples{
 \dontrun{
