@@ -1,13 +1,12 @@
+its                     Irregularly Spaced Time-Series
 itsAccessor             Accessor, Assignment Functions for Irregular
                         Time-Series Objects
 itsArith                Arithmetic Methods for Irregular Time-Series
                         Objects
 itsCumdif               Cumulation, Differencing for Irregular
                         Time-Series Objects
-itsDef                  Irregularly Spaced Time-Series
 itsDisp                 Display Methods for Irregular Time-Series
                         Objects
-priceIts                Download Historical Finance Data
 itsFile                 File Operations for Irregular Time-Series
                         Objects
 itsFin                  Financial Functions for Irregular Time-Series
@@ -24,3 +23,4 @@ itsSubset               Range and Extract for Irregular Time-Series
                         Objects
 itsTimes                Time Functions for Irregular Time-Series
                         Objects
+priceIts                Download Historical Finance Data
