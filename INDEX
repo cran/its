@@ -1,3 +1,6 @@
+Extract                 Extract or Replace Parts of an Object
+[<--methods             ~~ Methods for Function [<- in Package 'its'
+                        ~~
 its                     Irregularly Spaced Time-Series
 itsAccessor             Accessor, Assignment Functions for Irregular
                         Time-Series Objects

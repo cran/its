@@ -10,6 +10,7 @@ addDimnames <- function(mat)
 test <- function(x){if(!identical(x,TRUE))stop()}
 #test procedure for its
 mytimes <- seq.POSIXt(from=Sys.time(),by=24*60*60,length.out=10)
+attr(mytimes,"tzone") <- "UTM"
 mat <- addDimnames(matrix(1:30,10,3))
 dimnames(mat)[[2]] <- c("A","B","C")
 its.format("%Y-%m-%d %X")
@@ -33,10 +34,15 @@ y2 <- its(x@.Data[,1,drop=FALSE]+pi,mytimes)
 test(all.equal(y1@.Data,y2@.Data))
 test(all.equal(y1@dates,y2@dates))
 y3 <- its(mat,mytimes+24*60*60)
-ermsg <- try(x+y3,silent=TRUE)
-test(ermsg=="Error in x + y3 : dates must match\n")
-ermsg <- try(x+x2,silent=TRUE)
-test(ermsg=="Error in x + x2 : dates must match\n")
+
+# changed in version 1.0.4
+# the intersection of the dates is now taken
+#ermsg <- try(x+y3,silent=TRUE)
+#test(ermsg=="Error in x + y3 : dates must match\n")
+#ermsg <- try(x+x2,silent=TRUE)
+#test(ermsg=="Error in x + x2 : dates must match\n")
+
+
 #extractor**********************************************************
 y1 <- x[,1,dates=dates(x)[1:5]]
 y2 <- x[1:5,1]
@@ -251,8 +257,14 @@ foo <- alignedIts(x,xsub,print=F)
 test(identical(foo[[1]],xsub))
 test(identical(foo[[2]],xsub))
 #appendIts-function-------------------------------------------------
+
+# these operations change the order of the attributes of the date
+# after this, identical can't be used to compare series
+# because the attributes order does not match
 later <- mytimes+366*24*60*60
 over <- mytimes+5*24*60*60
+
+
 x <- its(mat,mytimes)
 xlate <- its(mat,later)
 xover <- its(mat,over)
@@ -260,7 +272,8 @@ foo <- appendIts(x,xlate)
 bar <- appendIts(xlate,x)
 test(identical(foo,bar))
 test(identical(foo[1:10],x))
-test(identical(foo[11:20],xlate))
+# test(identical(foo[11:20],xlate))
+test(all.equal(foo[11:20],xlate))
 foo <- try(appendIts(x,x[(2:(nrow(x)-1)),],but=FALSE),silent=TRUE)
 test(identical(grep("appendor data must extend appendee data",foo)>0,TRUE))
 foo <- appendIts(x/x,xover/xover,but=FALSE)
@@ -559,7 +572,7 @@ cat(
         "******************************\n")
     )    
 }
-#require(its)
+require(its)
 #require(Rblp)
 print(system.time(testIts(New=TRUE,graph=FALSE)))
 print(system.time(testIts(New=TRUE,graph=TRUE)))

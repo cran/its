@@ -3,7 +3,7 @@ Release procedure
 Testing and development h:/dev/its
 
 Final checks :
-Rcmd CHECK its
+Rcmd check its
 Rcmd build --force its
 Rcmd build --binary its
 Rcmd INSTALL --save its

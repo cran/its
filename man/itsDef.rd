@@ -22,8 +22,11 @@
   }
 
 \usage{
-its(x,dates=as.POSIXct(x=strptime(dimnames(x)[[1]],format=its.format())),
-names=dimnames(x)[[2]],format=its.format(),...)
+its(x,
+dates=as.POSIXct(x=strptime(dimnames(x)[[1]],format=its.format()),tz="UTM"),
+names=dimnames(x)[[2]],
+format=its.format(),
+...)
 
 newIts(x=NA,start=format(Sys.Date(),format=its.format()),
 end,ncol=1,by="DSTday",extract=FALSE,format=its.format(),...)

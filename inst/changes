@@ -1,4 +1,9 @@
 its package release notes
+1.0.4   2004-12-01
+1	its now forces all tzones to be UTM, unless tzone is already an attribute of the dates
+	used to create the its object
+2	the Arith group now takes the intersection of the dates.  The past behavior was to fail
+	unless the dates matched exactly.
 
 1.0.3   2004-04-16
 1   fixed bug in priceIts() using patch from Dirk Eddelbuettel

@@ -26,8 +26,8 @@
 \details{
 
 The arithmetic operators return numeric vectors containing the result of the 
-element-by-element operations.  The arguments must be conformable (same dimensions) 
-and their time-stamps must match for each row.
+element-by-element operations.  The dates of the arguments are matched and
+the intersection of the dates is returned.
 
 Note that the matrix multiplication operator, %*%, is inherited from matrix,
 and the result of a matrix multiplication is a matrix, not an \code{"its"}.
@@ -37,8 +37,9 @@ The resulting matrix can be converted back to its using the function its()
 
 \value{
 
-The returned object is an object of class \code{"its"}, conformable with the
-inputs, and with identical time-stamps.
+The returned object is an object of class \code{"its"}, having the same number
+of columns as the two arguments, however, the number of rows will be the length
+of the intersection of the dates of the two arguments.
 
 }
 \author{Giles Heywood}
@@ -60,6 +61,8 @@ inputs, and with identical time-stamps.
 
 \examples{
 b <- newIts(1:30,ncol=3)
+c <- newIts(1:10,ncol=3)[1:5,]
+b+c
 b+b-2*b
 b/b
 b\%*\%diag(ncol(b))

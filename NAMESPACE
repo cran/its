@@ -18,7 +18,8 @@ export( readcsvIts,
         collapseIts,
         its.format,
         locf,
-        priceIts
+        priceIts,
+				"[.POSIXct"
         )
 
 exportClasses("its")

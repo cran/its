@@ -1,4 +1,30 @@
-require("Hmisc",quietly=TRUE)
+#    itspkg.r: a time series package in R
+#    Copyright (C) 2003 to 2004 Commerzbank Securities
+#    Copyright (C) 2004 to present Whit Armstrong
+
+
+.onLoad <- function(lib, pkg) require(methods)
+
+#lazyloading now takes care of this
+# require("Hmisc",quietly=TRUE)
+
+
+# please fix this CRAN
+# [.POSIXct in cran does not copy over the tzone
+# attribute, so it gets dropped every time subsetting is done
+# on a POSIXct vector
+"[.POSIXct" <-
+function (x, ..., drop = TRUE) 
+{
+    old.tzone <- attr(x,"tzone")
+	old.class <- class(x)
+    class(x) <- NULL
+    val <- NextMethod("[")
+	class(val) <- old.class
+    attr(val,"tzone") <- old.tzone
+    val
+}
+
 itsState <- new.env()
 assign(x=".itsformat", value="%Y-%m-%d" , env=itsState)
 setClass("its",representation("matrix",dates="POSIXt"))
@@ -58,13 +84,19 @@ setMethod("core<-",signature(x="its",value="matrix"),
     )
 #arith-methods------------------------------------------------------
 setMethod("Arith",signature(e1="its",e2="its"),
-    function(e1,e2)
-    {
-    if(!identical(e1@dates,e2@dates)) stop("dates must match")
-    e1@.Data <- callGeneric(e1@.Data,e2@.Data)
-    return(e1)
-    }
-    )
+function(e1,e2)
+{
+	# take intersection of dates
+	i.dates <- sort(intersect(dates(e1),dates(e2)))
+	attr(i.dates,"tzone") <- attr(dates(e1),"tzone")
+ 	
+	# add the data, taking the subset of the core for which the dates match
+	ans <- callGeneric(e1[dates=i.dates,]@.Data,e2[dates=i.dates,]@.Data)
+  
+	# make a new its w/ the ans and the dates intersection
+	return(its(ans,i.dates))
+}
+)
 #plot-method--------------------------------------------------------
 if(!isGeneric("plot")) setGeneric("plot", useAsDefault=plot)
 setMethod("plot",signature(x="its",y="missing"),
@@ -137,7 +169,7 @@ setMethod("start",signature(x="its"),
     return(format(x@dates[1],format=format,...))
     }
     )
-#end -method--------------------------------------------------------
+#end-method--------------------------------------------------------
 setMethod("end",signature(x="its"),
     endIts <- function(x,format=its.format(),...)
     {
@@ -245,7 +277,7 @@ setAs(from="its",to="data.frame",def=function(from) {data.frame(core(from))})
 
 #-Functions-
 #readcsvIts-function------------------------------------------------
-readcsvIts <- function(filename,informat=its.format(),outformat=its.format(),tz="",usetz=FALSE,header=TRUE,...)
+readcsvIts <- function(filename,informat=its.format(),outformat=its.format(),tz="UTM",usetz=FALSE,header=TRUE,...)
     {
     mydata <- read.csv(filename,header=header,...)
     n <- dim(mydata)[1]
@@ -253,12 +285,12 @@ readcsvIts <- function(filename,informat=its.format(),outformat=its.format(),tz=
     datamat <- as.numeric(as.matrix((mydata)[,2:m,drop=FALSE]))
     dim(datamat) <- c(n,(m-1))
     dimnames(datamat) <- list(dimnames(mydata)[[1]],dimnames(mydata)[[2]][2:m])
-    dimnames(datamat)[[1]]  <- format(strptime(as.character(as.vector(mydata[,1])),
-                                              informat),format=outformat,tz=tz,usetz=usetz)
+    dimnames(datamat)[[1]]  <- format(strptime(as.character(as.vector(mydata[,1])),informat),
+    								  format=outformat,tz=tz,usetz=usetz)
     return(datamat)
     }
 #writecsvIts-function-----------------------------------------------
-writecsvIts <- function(x,filename,format=its.format(),tz="",usetz=FALSE,col.names=NA,sep=",",split=FALSE,...)
+writecsvIts <- function(x,filename,format=its.format(),tz="UTM",usetz=FALSE,col.names=NA,sep=",",split=FALSE,...)
     {
     if (!inherits(x, "its")) stop("function is only valid for objects of class 'its'")
     dimnames(x)[[1]] <- format(x@dates,format=format,tz=tz,usetz=usetz)
@@ -294,11 +326,18 @@ accrueIts <- function(x,daysperyear=365)
     }
 #its-function-------------------------------------------------------
 its <- function(x,
-                dates=as.POSIXct(x=strptime(dimnames(x)[[1]],format=its.format())),
+                dates=as.POSIXct(x=strptime(dimnames(x)[[1]],format=its.format()),tz="UTM"),
                 names=dimnames(x)[[2]],format=its.format(),...)
     {
+    
     if(!is(dates,"POSIXt")) stop("dates should be in POSIX format")
+    
     dates <- as.POSIXct(dates)
+	
+	if(is.null(attr(dates,"tzone"))) {
+		attr(dates,"tzone") <- "UTM"
+	}
+    
     if(is.null(dim(x))){dim(x) <- c(length(x),1)}
     x <- addDimnames(x)
     if(!(nrow(x)==length(dates))) {stop("dates length must match matrix nrows")}
@@ -321,17 +360,26 @@ as.its <- function(x,...)
     }
 #lagIts-function----------------------------------------------------
 lagIts <- function(x,k=1)
-    {
+{
+    
     if (!inherits(x, "its")) stop("function is only valid for objects of class 'its'")
-    lagmat <- x*NA
+    
+    lagmat <- core(x)*NA
+    
     dimnames(lagmat)[[2]] <- paste(dimnames(lagmat)[[2]],"lag",k)
+    
     n <- dim(x)[1]
-    if(k>0)
-        {lagmat[(k+1):n,] <- x[1:(n-k),]}  else
-        {lagmat[1:(n+k),] <- x[(1-k):n,]}
-    y <- its(lagmat,dates=x@dates)
-    return(y)
+    
+    if(k>0) {
+    	lagmat[(k+1):n,] <- x[1:(n-k),]
+    }  else {
+    	lagmat[1:(n+k),] <- x[(1-k):n,]
     }
+    
+    y <- its(lagmat,dates=x@dates)
+    
+    return(y)
+}
 #lagdistIts-function------------------------------------------------
 lagdistIts <- function(x,kmin,kmax)
     {
@@ -435,6 +483,7 @@ newIts <- function(x=NA,
                             {end.p <- as.POSIXct(x=strptime(end,format=format),tz="UTM")} else
                             {end.p <- as.POSIXct(end)}
     dates <- seq(from=start.p,by=by,to=end.p)
+	attr(dates,"tzone") <- "UTM"
     if(extract) {dates <- extractDates(dates=dates,...)}
     result <- its(matrix(x,ncol=ncol,nrow=length(dates)),dates)
     return(result)
@@ -486,7 +535,7 @@ validIts <-  function(object)
     if(!identical(nrow(object@.Data),length(object@dates))) return("Inconsistent length of dates")
     if(any(is.na(object@dates))) return("Missing values in dates")
     d <- diff(object@dates)
-    if(any(d<0.)) return("Dates must be non-decreasing")
+    if(any(d<0)) return("Dates must be non-decreasing")
     return(TRUE)
     }
 setValidity("its",validIts)
@@ -720,6 +769,20 @@ locf <- function(x)
         }
     return(y)
     }
+
+
+# as.its.zoo-fucntion--------------------------------------------
+# for converting an its object into a zoo object
+# contributed by the zoo team
+as.its.zoo <- function(x) {
+  stopifnot(require(its))
+  index <- attr(x, "index")
+  stopifnot(inherits(index, "POSIXct"))
+  attr(x, "index") <- NULL
+  its(unclass(x), index)
+}
+
+
 
 
 #priceIts-function-------------------------------------------------
