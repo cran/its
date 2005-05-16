@@ -1,4 +1,8 @@
 its package release notes
+1.0.5		2005-05-16
+1 no longer necessary to force the use of a fixed timezone
+2 various changes in functionality provided by Giles, a changelog should be available soon
+
 1.0.4   2004-12-01
 1	its now forces all tzones to be UTM, unless tzone is already an attribute of the dates
 	used to create the its object

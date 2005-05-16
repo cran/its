@@ -18,16 +18,18 @@
   Accessor & assignment functions for objects of class \code{"its"}.
 }
 \usage{
-dates(x)
+dates(x,...)
 names(x)
 core(x)
-dates(x) <- 
-names(x) <-
-core(x) <- 
+dates(x) <- value
+names(x) <- value
+core(x) <- value
 }
 
 \arguments{
   \item{x}{an object of class \code{"its"}}
+	\item{\dots}{further arguments passed to or from other methods}
+	\item{value}{value to be assigned into dates, names, or core}
 }
 
 \details{
@@ -46,7 +48,7 @@ core(x) <-
 
 \value{
 
-  For \code{dates}  a vector of class \code{"POSIXct"}.
+  For \code{dates,...}  a vector of class \code{"POSIXct"}.
   For \code{names}  a vector of mode \code{"character"}.
   For \code{core}  a matrix of mode\code{"numeric"}.
   For \code{dates<-, names<-, and core<-} an object of class \code{"its"}.

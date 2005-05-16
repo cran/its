@@ -8,15 +8,16 @@
   File read and write operations for objects of class \code{"its"}.
 }
 \usage{
-readcsvIts(filename,informat=its.format(),outformat=its.format(),tz="",
-usetz=FALSE,header=TRUE,...)
-writecsvIts(x,filename,format=its.format(),tz="",usetz=FALSE,col.names=NA,
+readcsvIts(filename,informat=its.format(),outformat=its.format(),tz="",usetz = FALSE,header=TRUE,...)
+writecsvIts(x,filename,format=its.format(),tz="",usetz = FALSE,col.names=NA,
 sep=",",split=FALSE,...)
 }
 \arguments{
   \item{filename}{filename}
   \item{x}{an object of class \code{"its"}}
-  \item{format, informat, outformat, tz, usetz}{formatting related arguments, see \code{\link{format.POSIXct}}.}
+  \item{format, informat, outformat}{formatting related arguments, see \code{\link{format.POSIXct}}.}
+  \item{tz}{what timezone the its is in}
+  \item{usetz}{whether to include the tzone information in the saved file}
   \item{header}{see \code{\link{read.csv}}}
   \item{col.names, sep}{see \code{\link{write.table}}}
   \item{split}{when columns exceed 255 in number, flags for splitting into numbered subfiles}

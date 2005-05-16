@@ -13,7 +13,7 @@
 }
 \usage{
 rangeIts(x,start=dates(x)[1],end=dates(x)[nrow(x)],format=its.format(),...)
-extractIts(x,weekday=FALSE,find=c("all","last","first"),period=c("week","month"),partials=TRUE,select)
+extractIts(x,weekday=FALSE,find=c("all","last","first"),period=c("week","month","year"),partials=TRUE,firstlast = FALSE,select)
 x[i,j,dates]
 }
 \arguments{
@@ -32,6 +32,7 @@ x[i,j,dates]
   \item{period}{the period within which 'find' and/or 'select' operate}
   \item{partials}{defines whether the first (possibly incomplete) period is processed 
                 for find=first, and whether the last is processed for find=last}
+  \item{firstlast}{if TRUE, the first and last observations are returned, in addition to those observations selected by other criteria}
   \item{select}{an integer vector defining one or more days to select.  The integer 
                 specifies \code{wday} (for period=week) or \code{mday} (for period=month).  See 
                 \code{\link{as.POSIXlt}} for details}
@@ -79,7 +80,7 @@ rangeIts(b,start = "2003-01-05" ,end= "2003-01-15")
 rangeIts(b,start = ISOdate(2003,1,5,hour=0) ,end= ISOdate(2003,1,15,hour=0))
 b[1:3,]
 b[,1]
-b[,dates=ISOdate(2003,1,1,hour=0)]
+b[,dates=ISOdate(2003,1,1,hour=0,tz="")]
 its.format("\%a \%d \%b \%Y")
 c <- newIts()
 extractIts(c,weekday=TRUE,period="month",find="last")  #the last weekdays of the month in c

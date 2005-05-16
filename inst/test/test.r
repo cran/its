@@ -10,7 +10,6 @@ addDimnames <- function(mat)
 test <- function(x){if(!identical(x,TRUE))stop()}
 #test procedure for its
 mytimes <- seq.POSIXt(from=Sys.time(),by=24*60*60,length.out=10)
-attr(mytimes,"tzone") <- "UTM"
 mat <- addDimnames(matrix(1:30,10,3))
 dimnames(mat)[[2]] <- c("A","B","C")
 its.format("%Y-%m-%d %X")
@@ -90,6 +89,7 @@ x <- its(mat,mytimes)
 test(all.equal(x@dates,mytimes))
 test(all.equal(x@.Data/mat,x@.Data/x@.Data))
 #parameters
+years <- 100:105
 hoursecs <- 60*60
 regdaysecs <- 24*hoursecs
 monthdays <- c(28,29,30,31)
@@ -103,8 +103,8 @@ its.format("%Y-%m-%d")
 if(as.numeric(R.Version()$major)*1000+as.numeric(R.Version()$minor)*10>=1080 & New)
     {
 
-    mystarts <- c("2003-01-01","2002-12-31","2003-11-17")
-    myends <- c("2003-02-01","2003-12-31","2004-12-17")
+    mystarts <- c("2003-01-01","2002-12-31","2003-11-17","2004-10-27")
+    myends <- c("2003-02-01","2003-12-31","2004-12-17","2004-11-01")
 
     for(ddd in mystarts)
         {
@@ -518,6 +518,11 @@ for(j in 1:length(yahitemslist))
 #fromirtsIts-function------------------------------------------------
 #identical(fromirtsIts(irts(x@dates,x)),x)
 
+#locf---------------------------------------------------------------
+foo <- x
+foo[2:4,] <- NA
+test(identical(dates(x),dates(foo)))
+
 #-Utility Methods-
 #validity check-----------------------------------------------------
 #dates<--method-----------------------------------------------------
@@ -532,35 +537,36 @@ for(j in 1:length(yahitemslist))
 #its.format-function------------------------------------------------
 #simdates.its-function----------------------------------------------
 #***extractDates
-if(as.numeric(R.Version()$major)*100+as.numeric(R.Version()$minor)*10>=1080 & New)
-    {
     its.format("%Y-%m-%d")
-    TEST <- newIts(from="2003-11-17",to="2005-12-25")
+    TEST <- newIts(start="2003-11-17",end="2005-12-25")
     #-select
-    test(all((as.numeric(extractDates(TEST@dates,period="week",select=2))-as.numeric(extractDates(TEST@dates,period="week",select=1)))%in%daysecs))
+    test(all((as.numeric(extractIts(TEST,period="week",select=2)@dates)-as.numeric(extractIts(TEST,period="week",select=1)@dates))%in%daysecs))
     #-weekday
-    test(all(as.POSIXlt(extractDates(TEST@dates,weekday=TRUE))$wday
+    test(all(as.POSIXlt(extractIts(TEST,weekday=TRUE)@dates)$wday
         %in%1:5))
-    test(all(as.POSIXlt(extractDates(TEST@dates,weekday=TRUE,find="last"))$wday
+    test(all(as.POSIXlt(extractIts(TEST,weekday=TRUE,find="last")@dates)$wday
         %in%1:5))
-    test(all(as.POSIXlt(extractDates(TEST@dates,weekday=TRUE,select=weekDaySelection))$wday
+    test(all(as.POSIXlt(extractIts(TEST,weekday=TRUE,select=weekDaySelection)@dates)$wday
         %in%weekDaySelection))
-    test(all(as.POSIXlt(extractDates(TEST@dates,weekday=TRUE,select=weekDaySelection,period="week",find="last"))$wday==5))
-    test(all(as.POSIXlt(extractDates(TEST@dates,weekday=TRUE,select=weekDaySelection,period="week",find="first"))$wday==1))
+    test(all(as.POSIXlt(extractIts(TEST,weekday=TRUE,select=weekDaySelection,period="week",find="last")@dates)$wday==5))
+    test(all(as.POSIXlt(extractIts(TEST,weekday=TRUE,select=weekDaySelection,period="week",find="first")@dates)$wday==1))
     #-find
-    test(all(as.POSIXlt(extractDates(TEST@dates,weekday=TRUE,period="week",find="first")[-1])$wday==1))
+    test(all(as.POSIXlt(extractIts(TEST,weekday=TRUE,period="week",find="first")@dates[-1])$wday==1))
     TESTX <-
-     extractDates(TEST@dates[1:(length(TEST@dates)-2)],weekday=TRUE,period="week",find="last")
+     extractIts(TEST[1:(length(TEST@dates)-2)],weekday=TRUE,period="week",find="last")@dates
     test(all(as.POSIXlt(TESTX)$wday[-length(TESTX)]==5))
     #-period
-    test(all(as.POSIXlt(extractDates(TEST@dates,weekday=FALSE,period="month",find="last",partial=FALSE))$mday%in%monthdays))
-    test(all(as.POSIXlt(extractDates(TEST@dates,weekday=FALSE,period="month",find="first",partial=FALSE))$mday==1))
-    test(all(as.POSIXlt(extractDates(TEST@dates,weekday=FALSE,period="week",find="first",partial=FALSE))$wday==0))
+    test(all(as.POSIXlt(extractIts(TEST,weekday=FALSE,period="year",find="first",partial=FALSE)@dates)$yday==0))
+    test(all(as.POSIXlt(extractIts(TEST,weekday=FALSE,period="month",find="last",partial=FALSE)@dates)$mday%in%monthdays))
+    test(all(as.POSIXlt(extractIts(TEST,weekday=FALSE,period="month",find="first",partial=FALSE)@dates)$mday==1))
+    test(all(as.POSIXlt(extractIts(TEST,weekday=FALSE,period="week",find="first",partial=FALSE)@dates)$wday==0))
+    test(all(as.POSIXlt(dates(extractIts(newIts(start="2001-12-21",end="2002-01-10")[-10:-11,],find="last",period="week",partial=FALSE)))$wday ==6))
+    #firstlast
+    test(start(extractIts(TEST,per="y",find="f",firstlast=TRUE))==start(TEST)&&end(extractIts(TEST,,per="y",find="f",firstlast=TRUE))==end(TEST))
     #-select
-    test(all((as.numeric(extractDates(TEST@dates,period="week",select=2))-as.numeric(extractDates(TEST@dates,period="week",select=1)))%in%daysecs))
-    test(all(as.POSIXlt(extractDates(TEST@dates,period="week",select=2))$wday==2))
-    test(all(as.POSIXlt(extractDates(TEST@dates,period="week",select=2,weekday=TRUE))$wday==2))
-    }
+    test(all((as.numeric(extractIts(TEST,period="week",select=2)@dates)-as.numeric(extractIts(TEST,period="week",select=1)@dates))%in%daysecs))
+    test(all(as.POSIXlt(extractIts(TEST,period="week",select=2)@dates)$wday==2))
+    test(all(as.POSIXlt(extractIts(TEST,period="week",select=2,weekday=TRUE)@dates)$wday==2))
 #
 cat(
     paste(sep="",
@@ -572,8 +578,7 @@ cat(
         "******************************\n")
     )    
 }
-require(its)
+#require(its)
 #require(Rblp)
 print(system.time(testIts(New=TRUE,graph=FALSE)))
 print(system.time(testIts(New=TRUE,graph=TRUE)))
-

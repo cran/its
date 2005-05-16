@@ -17,12 +17,10 @@ CVS commit and tag
 Protect .tar.gz
 
 FTP upload of .tar.gz at the command prompt:
-ftp ftp-proxy
-anonymous@ftp.ci.tuwien.ac.at
-giles.heywood@commerzbankib.com
+ftp anonymous@cran.r-project.org
+your.email.address@yourserver.com
 cd ./incoming
-binary
-put f:/r-win32/prag-packages/its/its_i.j.k.tar.gz
+put ./its_i.j.k.tar.gz
 quit
  
 Email to cran@r-project.org; Kurt.Hornik@wu-wien.ac.at 

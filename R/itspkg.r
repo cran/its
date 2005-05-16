@@ -8,23 +8,6 @@
 #lazyloading now takes care of this
 # require("Hmisc",quietly=TRUE)
 
-
-# please fix this CRAN
-# [.POSIXct in cran does not copy over the tzone
-# attribute, so it gets dropped every time subsetting is done
-# on a POSIXct vector
-"[.POSIXct" <-
-function (x, ..., drop = TRUE) 
-{
-    old.tzone <- attr(x,"tzone")
-	old.class <- class(x)
-    class(x) <- NULL
-    val <- NextMethod("[")
-	class(val) <- old.class
-    attr(val,"tzone") <- old.tzone
-    val
-}
-
 itsState <- new.env()
 assign(x=".itsformat", value="%Y-%m-%d" , env=itsState)
 setClass("its",representation("matrix",dates="POSIXt"))
@@ -46,7 +29,7 @@ setMethod("names<-",signature(x="its",value="character"),
     }
     )
 #dates-method-------------------------------------------------------
-if(!isGeneric("dates")) {setGeneric("dates", function(x) standardGeneric("dates"))}
+if(!isGeneric("dates")) {setGeneric("dates", function(x,...) standardGeneric("dates"))}
 setMethod("dates",signature(x="its"),
     datesIts <- function(x)
     {
@@ -86,15 +69,14 @@ setMethod("core<-",signature(x="its",value="matrix"),
 setMethod("Arith",signature(e1="its",e2="its"),
 function(e1,e2)
 {
-	# take intersection of dates
-	i.dates <- sort(intersect(dates(e1),dates(e2)))
-	attr(i.dates,"tzone") <- attr(dates(e1),"tzone")
- 	
-	# add the data, taking the subset of the core for which the dates match
-	ans <- callGeneric(e1[dates=i.dates,]@.Data,e2[dates=i.dates,]@.Data)
+    # take intersection of dates
+    i.dates <- sort(intersect(dates(e1),dates(e2)))
+    
+    # add the data, taking the subset of the core for which the dates match
+    ans <- callGeneric(e1[dates=i.dates,]@.Data,e2[dates=i.dates,]@.Data)
   
-	# make a new its w/ the ans and the dates intersection
-	return(its(ans,i.dates))
+    # make a new its w/ the ans and the dates intersection
+    return(its(ans,i.dates))
 }
 )
 #plot-method--------------------------------------------------------
@@ -277,7 +259,7 @@ setAs(from="its",to="data.frame",def=function(from) {data.frame(core(from))})
 
 #-Functions-
 #readcsvIts-function------------------------------------------------
-readcsvIts <- function(filename,informat=its.format(),outformat=its.format(),tz="UTM",usetz=FALSE,header=TRUE,...)
+readcsvIts <- function(filename,informat=its.format(),outformat=its.format(),tz="",usetz=FALSE,header=TRUE,...)
     {
     mydata <- read.csv(filename,header=header,...)
     n <- dim(mydata)[1]
@@ -286,11 +268,11 @@ readcsvIts <- function(filename,informat=its.format(),outformat=its.format(),tz=
     dim(datamat) <- c(n,(m-1))
     dimnames(datamat) <- list(dimnames(mydata)[[1]],dimnames(mydata)[[2]][2:m])
     dimnames(datamat)[[1]]  <- format(strptime(as.character(as.vector(mydata[,1])),informat),
-    								  format=outformat,tz=tz,usetz=usetz)
+                                      format=outformat,tz=tz,usetz=usetz)
     return(datamat)
     }
 #writecsvIts-function-----------------------------------------------
-writecsvIts <- function(x,filename,format=its.format(),tz="UTM",usetz=FALSE,col.names=NA,sep=",",split=FALSE,...)
+writecsvIts <- function(x,filename,format=its.format(),tz="",usetz=FALSE,col.names=NA,sep=",",split=FALSE,...)
     {
     if (!inherits(x, "its")) stop("function is only valid for objects of class 'its'")
     dimnames(x)[[1]] <- format(x@dates,format=format,tz=tz,usetz=usetz)
@@ -326,17 +308,13 @@ accrueIts <- function(x,daysperyear=365)
     }
 #its-function-------------------------------------------------------
 its <- function(x,
-                dates=as.POSIXct(x=strptime(dimnames(x)[[1]],format=its.format()),tz="UTM"),
+                dates=as.POSIXct(x=strptime(dimnames(x)[[1]],format=its.format())),
                 names=dimnames(x)[[2]],format=its.format(),...)
     {
     
     if(!is(dates,"POSIXt")) stop("dates should be in POSIX format")
     
     dates <- as.POSIXct(dates)
-	
-	if(is.null(attr(dates,"tzone"))) {
-		attr(dates,"tzone") <- "UTM"
-	}
     
     if(is.null(dim(x))){dim(x) <- c(length(x),1)}
     x <- addDimnames(x)
@@ -344,7 +322,7 @@ its <- function(x,
     if(!(ncol(x)==length(names))) {stop("names length must match matrix ncols")}
     dimnames(x)[[1]] <- format(dates,format=format,...)
     dimnames(x)[[2]] <- names
-    return(new("its",x,dates=dates))
+    return(new("its",x,dates=c(dates)))
     }
 #is.its-function----------------------------------------------------
 is.its <- function(object)
@@ -371,9 +349,9 @@ lagIts <- function(x,k=1)
     n <- dim(x)[1]
     
     if(k>0) {
-    	lagmat[(k+1):n,] <- x[1:(n-k),]
+        lagmat[(k+1):n,] <- x[1:(n-k),]
     }  else {
-    	lagmat[1:(n+k),] <- x[(1-k):n,]
+        lagmat[1:(n+k),] <- x[(1-k):n,]
     }
     
     y <- its(lagmat,dates=x@dates)
@@ -472,18 +450,18 @@ newIts <- function(x=NA,
                    by="DSTday",
                    extract=FALSE,
                    format=its.format(),
+                   tz="",
                    ...)
     {
     if(mode(start)=="character") 
-        {start.p <- as.POSIXct(x=strptime(start,format=format),tz="UTM")} else
+        {start.p <- as.POSIXct(x=strptime(start,format=format),tz=tz)} else
         {start.p <- as.POSIXct(start)}
     if(missing(end)) {end <- format(as.Date(start,format=its.format())+9,format=its.format())
-                     end.p <- as.POSIXct(x=strptime(end,format=format),tz="UTM")} else 
+                     end.p <- as.POSIXct(x=strptime(end,format=format),tz=tz)} else 
                         if(mode(end)=="character") 
-                            {end.p <- as.POSIXct(x=strptime(end,format=format),tz="UTM")} else
+                            {end.p <- as.POSIXct(x=strptime(end,format=format),tz=tz)} else
                             {end.p <- as.POSIXct(end)}
     dates <- seq(from=start.p,by=by,to=end.p)
-	attr(dates,"tzone") <- "UTM"
     if(extract) {dates <- extractDates(dates=dates,...)}
     result <- its(matrix(x,ncol=ncol,nrow=length(dates)),dates)
     return(result)
@@ -492,8 +470,9 @@ newIts <- function(x=NA,
 extractIts <- function(x,
                     weekday=FALSE,
                     find=c("all","last","first"),
-                    period=c("week","month"),
+                    period=c("week","month","year"),
                     partials=TRUE,
+                    firstlast=FALSE,
                     select)
     {
     if (!inherits(x, "its")) stop("function is only valid for objects of class 'its'")
@@ -502,6 +481,7 @@ extractIts <- function(x,
                    find=find,
                    period=period,
                    partials=partials,
+                   firstlast=firstlast,
                    select=select)
     return(x[dates=xdates])
     }
@@ -536,6 +516,7 @@ validIts <-  function(object)
     if(any(is.na(object@dates))) return("Missing values in dates")
     d <- diff(object@dates)
     if(any(d<0)) return("Dates must be non-decreasing")
+    if(!is.null(attr(object@dates,"tzone"))) return("Timezone attribute not allowed in dates slot of class its")
     return(TRUE)
     }
 setValidity("its",validIts)
@@ -558,7 +539,7 @@ setMethod("[", c("its","ANY"),  function(x, i, j, drop, ...)
     dates <- x@dates[i]
     ans <- new("its",
             subx,
-            dates=dates)
+            dates=c(dates))
     return(ans)
     })
 setReplaceMethod("[", signature(x="its", value="its"), function(x, i, j, ..., value) 
@@ -578,17 +559,17 @@ setReplaceMethod("[", signature(x="its", value="its"), function(x, i, j, ..., va
     x@dates[i] <- value@dates
     ans <- new("its",
             core(x),
-            dates=dates(x))
+            dates=c(dates(x)))
     return(ans)
     })    
 #-Utility Functions-
 #addDimnames-function-----------------------------------------------
-addDimnames <- function(mat)
+addDimnames <- function(x)
     {
-    if(is.null(dimnames(mat))) {dimnames(mat) <- list(NULL,NULL)}
-    if(is.null(dimnames(mat)[[1]])&(nrow(mat)>0)) {dimnames(mat)[[1]] <- 1:nrow(mat)}
-    if(is.null(dimnames(mat)[[2]])&(ncol(mat)>0)) {dimnames(mat)[[2]] <- 1:ncol(mat)}
-    return(mat)
+    if(is.null(dimnames(x))) {dimnames(x) <- list(NULL,NULL)}
+    if(is.null(dimnames(x)[[1]])&(nrow(x)>0)) {dimnames(x)[[1]] <- 1:nrow(x)}
+    if(is.null(dimnames(x)[[2]])&(ncol(x)>0)) {dimnames(x)[[2]] <- 1:ncol(x)}
+    return(x)
     }
 #gapIts-function---------------------------------------------------
 gapIts <- function(x,y,maxgap)
@@ -677,8 +658,9 @@ extractDates <- function(
                    dates,
                    weekday=FALSE,
                    find=c("all","last","first"),
-                   period=c("week","month"),
+                   period=c("week","month","year"),
                    partials=TRUE,
+                   firstlast=FALSE,
                    select)
     {    
     find <- match.arg(find)
@@ -694,13 +676,17 @@ extractDates <- function(
         {
         theperiod <- 100*as.POSIXlt(dates[myindex1])$year+as.POSIXlt(dates[myindex1])$mon
         dayinperiod <- as.POSIXlt(dates[myindex1])$mday
+        } else if(period=="year")
+        {
+        theperiod <- as.POSIXlt(dates[myindex1])$year
+        dayinperiod <- as.POSIXlt(dates[myindex1])$yday
         } else if(period=="week")
         {
         theweek <- as.numeric(format(as.POSIXct(dates[myindex1]), "%U") )
-        theyear <- as.POSIXlt(dates[myindex1])$year
-        correctPartialWeek <- theweek!=0
-        theyear <- theyear[most.recent(correctPartialWeek)]    #first partial week in January assigned to last year
-        theweek <- theweek[most.recent(correctPartialWeek)]    #only incomplete Jan weeks are indexed 0 (see Jan 1995)
+        theyear <- as.numeric(format(dates[myindex1],"%Y"))
+        incorrectPartialWeek <- theweek==0
+        theyear[incorrectPartialWeek] <- theyear[incorrectPartialWeek]-1    #first partial week in January assigned to last year
+        theweek[incorrectPartialWeek] <- as.numeric(format(ISOdate(theyear[incorrectPartialWeek]-1,12,31),"%U"))    #only incomplete Jan weeks are indexed 0 (see Jan 1995)
         theperiod <- 100*theyear+theweek
         dayinperiod <- as.POSIXlt(dates[myindex1])$wday
         }
@@ -735,6 +721,10 @@ extractDates <- function(
         myindex3 <- which(dayinperiod[myindex2]%in%select)
         }
     myindex <- myindex1[myindex2][myindex3]
+    if(firstlast) 
+        {
+        myindex <- unique(c(1,myindex,myindex1[length(myindex1)]))
+        }
     if(all(is.na(myindex))) myindex <- NULL
     return(dates[myindex])
     }
@@ -767,6 +757,7 @@ locf <- function(x)
         {
         y[,j] <- y[most.recent(!is.na(y[,j])),j]
         }
+    dates(y) <- dates(x)
     return(y)
     }
 
@@ -798,8 +789,8 @@ priceIts <- function (instruments = "^gdax", start, end, quote = c("Open",
     if (missing(end)) 
         end <- format(Sys.time() - 86400, "%Y-%m-%d")
     provider <- match.arg(provider)
-    start <- as.POSIXct(start, tz = "GMT")
-    end <- as.POSIXct(end, tz = "GMT")
+    start <- as.POSIXct(start)
+    end <- as.POSIXct(end)
     for(i in 1:length(instruments))
         {
         url <- paste("http://chart.yahoo.com/table.csv?s=", instruments[i], 
@@ -838,6 +829,6 @@ oneinstrument <- its(y)[,quote]
         names(oneinstrument) <- paste(instruments[i],quote)
         allinstruments <- union(allinstruments,oneinstrument)
         }
-    return(allinstruments)
+    #return(allinstruments)
+    return(y)
     }
-

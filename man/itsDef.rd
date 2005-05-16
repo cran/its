@@ -23,13 +23,13 @@
 
 \usage{
 its(x,
-dates=as.POSIXct(x=strptime(dimnames(x)[[1]],format=its.format()),tz="UTM"),
+dates=as.POSIXct(x=strptime(dimnames(x)[[1]],format=its.format())),
 names=dimnames(x)[[2]],
 format=its.format(),
 ...)
 
 newIts(x=NA,start=format(Sys.Date(),format=its.format()),
-end,ncol=1,by="DSTday",extract=FALSE,format=its.format(),...)
+end,ncol=1,by="DSTday",extract=FALSE,format=its.format(),tz="",...)
 
 as.its(x,...)
 
@@ -59,6 +59,7 @@ its.format(formatDefault=NULL)
                 \code{its.format()}}
   \item{formatDefault}{a formatting string, see \code{\link{format.POSIXct}},
     defaults to \code{"\%Y-\%m-\%d"} if \code{formatDefault} is not specified.}
+	\item{tz}{time zone of dates of its object}
   \item{\dots}{further arguments passed to or from other methods:
     for \code{its} passed to \code{\link{format.POSIXct}}.;
     for \code{as.its} passed to \code{\link{its}}.;
