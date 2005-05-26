@@ -7,7 +7,7 @@
   the WWW.
 }
 \usage{
-priceIts(instruments = "^gdax", start, end, 
+priceIts(instruments = "^gdaxi", start, end, 
                 quote = c("Open","High", "Low", "Close"), 
                 provider = "yahoo", method = "auto", 
                 origin = "1899-12-30", compression = "d", quiet=TRUE)

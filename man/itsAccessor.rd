@@ -76,8 +76,8 @@ x <- newIts(1:10)
 dates(x)
 names(x)
 core(x)
-dates(x) <- seq.POSIXt(from=Sys.time()+11*24*60*60,
-            to=Sys.time()+20*24*60*60,
+dates(x) <- seq(from=Sys.time()+11*24*60*60,
+            length.out=10,
             by="DSTday")
 names(x) <- "B"
 core(x) <- as.matrix(11:20)

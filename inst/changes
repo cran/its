@@ -1,4 +1,12 @@
 its package release notes
+
+1.1.1 2005-10-23
+1   fixed itsAccessor example (sometimes produced less than 10 date elements
+    due to DST changes in some European timezones.
+
+1.1.0 2005-10-01
+1   dropped resriction on using tzone attribute for dates
+
 1.0.8 2005-05-26
 1		made as.its generic
 2		added compression argument to priceIts contributed by

@@ -31,7 +31,7 @@ print(x,...)
   \item{interp}{a flag, indicating for plot of type line, how NA vallues are interpolated}
   \item{\dots}{further arguments passed to or from other methods:
     for \code{plot} passed to \code{\link{plot}}.;
-    for \code{print} passed to \code{\link{print.matrix}}}
+    for \code{print} passed to \code{\link{print.default}}}
     }
 }
 \details{

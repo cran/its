@@ -1,4 +1,4 @@
-testIts <- function(graph=FALSE,New=TRUE)
+testIts <- function(graph=TRUE,New=TRUE)
 {
 addDimnames <- function(mat)
     {
@@ -10,6 +10,7 @@ addDimnames <- function(mat)
 test <- function(x){if(!identical(x,TRUE))stop()}
 #test procedure for its
 mytimes <- seq.POSIXt(from=Sys.time(),by=24*60*60,length.out=10)
+attr(mytimes,"tzone") <- ""
 mat <- addDimnames(matrix(1:30,10,3))
 dimnames(mat)[[2]] <- c("A","B","C")
 its.format("%Y-%m-%d %X")
@@ -254,8 +255,14 @@ isub <- seq(1,9,2)
 x <- its(x)
 xsub <- x[isub,]
 foo <- alignedIts(x,xsub,print=F)
+
+#identical is not working here
 test(identical(foo[[1]],xsub))
 test(identical(foo[[2]],xsub))
+
+test(identical(foo[[1]]@dates,xsub@dates))
+test(identical(core(foo[[1]]),core(xsub)))
+
 #appendIts-function-------------------------------------------------
 
 # these operations change the order of the attributes of the date
@@ -481,7 +488,7 @@ x <- priceIts()
 if(require(Rblp))
 {
 b <- blpConnect()
-yahtkrs <- c("^gdax","^ftse","^spx")
+yahtkrs <- c("^gdaxi","^ftse","^spx")
 blptkrs <- c("dax index","ukx index","spx index")
 startdate <- "2004-02-01"
 enddate <- "2004-02-10"
@@ -578,7 +585,8 @@ cat(
         "******************************\n")
     )    
 }
-#require(its)
+#debug(testIts)
+require(its)
 #require(Rblp)
 print(system.time(testIts(New=TRUE,graph=FALSE)))
 print(system.time(testIts(New=TRUE,graph=TRUE)))

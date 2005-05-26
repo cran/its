@@ -1,6 +1,5 @@
 Extract                 Extract or Replace Parts of an Object
-[<--methods             ~~ Methods for Function [<- in Package 'its'
-                        ~~
+[<--methods             ~~ Methods for Function [<- in Package 'its' ~~
 its                     Irregularly Spaced Time-Series
 itsAccessor             Accessor, Assignment Functions for Irregular
                         Time-Series Objects
@@ -21,8 +20,7 @@ itsInterp               Interpolation Functions for Irregular
                         Time-Series Objects
 itsJoin                 Join Functions for Irregular Time-Series
                         Objects
-itsLags                 Lag Functions for Irregular Time-Series
-                        Objects
+itsLags                 Lag Functions for Irregular Time-Series Objects
 itsSubset               Range and Extract for Irregular Time-Series
                         Objects
 itsTimes                Time Functions for Irregular Time-Series

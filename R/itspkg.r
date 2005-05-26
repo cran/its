@@ -71,7 +71,8 @@ function(e1,e2)
 {
     # take intersection of dates
     i.dates <- sort(intersect(dates(e1),dates(e2)))
-    
+    class(i.dates) <- c("POSIXt","POSIXct")
+
     # add the data, taking the subset of the core for which the dates match
     ans <- callGeneric(e1[dates=i.dates,]@.Data,e2[dates=i.dates,]@.Data)
   
@@ -313,8 +314,11 @@ its <- function(x,
     {
     
     if(!is(dates,"POSIXt")) stop("dates should be in POSIX format")
-    
+	    
     dates <- as.POSIXct(dates)
+
+		# fix identical bug
+		if(is.null(attr(dates,"tzone"))) attr(dates,"tzone") <- ""
     
     if(is.null(dim(x))){dim(x) <- c(length(x),1)}
     x <- addDimnames(x)
@@ -322,7 +326,7 @@ its <- function(x,
     if(!(ncol(x)==length(names))) {stop("names length must match matrix ncols")}
     dimnames(x)[[1]] <- format(dates,format=format,...)
     dimnames(x)[[2]] <- names
-    return(new("its",x,dates=c(dates)))
+    return(new("its",x,dates=dates))
     }
 #is.its-function----------------------------------------------------
 is.its <- function(object)
@@ -533,7 +537,7 @@ validIts <-  function(object)
     if(any(is.na(object@dates))) return("Missing values in dates")
     d <- diff(object@dates)
     if(any(d<0)) return("Dates must be non-decreasing")
-    if(!is.null(attr(object@dates,"tzone"))) return("Timezone attribute not allowed in dates slot of class its")
+		#if(!is.null(attr(object@dates,"tzone"))) return("Timezone attribute not allowed in dates slot of class its")
     return(TRUE)
     }
 setValidity("its",validIts)
@@ -556,7 +560,7 @@ setMethod("[", c("its","ANY"),  function(x, i, j, drop, ...)
     dates <- x@dates[i]
     ans <- new("its",
             subx,
-            dates=c(dates))
+            dates=dates)
     return(ans)
     })
 setReplaceMethod("[", signature(x="its", value="its"), function(x, i, j, ..., value) 
@@ -576,7 +580,7 @@ setReplaceMethod("[", signature(x="its", value="its"), function(x, i, j, ..., va
     x@dates[i] <- value@dates
     ans <- new("its",
             core(x),
-            dates=c(dates(x)))
+            dates=dates(x))
     return(ans)
     })    
 #-Utility Functions-
@@ -779,7 +783,7 @@ locf <- function(x)
     }
 
 #priceIts-function-------------------------------------------------
-priceIts <- function (instruments = "^gdax", start, end, quote = c("Open",
+priceIts <- function (instruments = "^gdaxi", start, end, quote = c("Open",
     "High", "Low", "Close"), provider = "yahoo", method = "auto", 
     origin = "1899-12-30", compression="d", quiet=TRUE)
     # added new argument, compression
