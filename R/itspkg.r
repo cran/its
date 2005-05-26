@@ -329,13 +329,25 @@ is.its <- function(object)
     {
     return(inherits(object,"its") && validIts(object))
     }
+
+as.its <- function(x,...) UseMethod("as.its") 
 #as.its-function----------------------------------------------------
 as.its <- function(x,...)
-    {
-    dates <- as.vector(x[,1])
-    class(dates) <- c("POSIXt","POSIXct")
-    return(its(x=x[,-1],dates=dates,...))
-    }
+	{
+   	dates <- as.vector(x[,1])
+   	class(dates) <- c("POSIXt","POSIXct")
+	 	return(its(x=x[,-1],dates=dates,...))
+	}
+# as.its.zoo-fucntion--------------------------------------------
+# for converting an its object into a zoo object
+# contributed by the zoo team
+as.its.zoo <- function(x) {
+  stopifnot(require(its))
+  index <- attr(x, "index")
+  stopifnot(inherits(index, "POSIXct"))
+  attr(x, "index") <- NULL
+  its(unclass(x), index)
+}
 #lagIts-function----------------------------------------------------
 lagIts <- function(x,k=1)
 {
@@ -761,25 +773,13 @@ locf <- function(x)
     return(y)
     }
 
-
-# as.its.zoo-fucntion--------------------------------------------
-# for converting an its object into a zoo object
-# contributed by the zoo team
-as.its.zoo <- function(x) {
-  stopifnot(require(its))
-  index <- attr(x, "index")
-  stopifnot(inherits(index, "POSIXct"))
-  attr(x, "index") <- NULL
-  its(unclass(x), index)
-}
-
-
-
-
 #priceIts-function-------------------------------------------------
-priceIts <- function (instruments = "^gdax", start, end, quote = c("Open", 
+priceIts <- function (instruments = "^gdax", start, end, quote = c("Open",
     "High", "Low", "Close"), provider = "yahoo", method = "auto", 
-    origin = "1899-12-30",quiet=TRUE) 
+    origin = "1899-12-30", compression="d", quiet=TRUE)
+    # added new argument, compression
+    # may be "d", "w" or "m", for daily weekly or monthly
+    # John Bollinger, 2004-10-20, www.BollingerBands.com, bbands@yahoo.com
     {
     if (provider != "yahoo") stop("provider not implemented")
     allinstruments <- NULL
@@ -789,16 +789,16 @@ priceIts <- function (instruments = "^gdax", start, end, quote = c("Open",
     if (missing(end)) 
         end <- format(Sys.time() - 86400, "%Y-%m-%d")
     provider <- match.arg(provider)
-    start <- as.POSIXct(start)
-    end <- as.POSIXct(end)
+    start <- as.POSIXct(start, tz = "GMT")
+    end <- as.POSIXct(end, tz = "GMT")
     for(i in 1:length(instruments))
         {
         url <- paste("http://chart.yahoo.com/table.csv?s=", instruments[i], 
             format(start, paste("&a=", as.character(as.numeric(format(start, 
-                "%m")) - 1), "&b=%d&c=%Y", sep = "")), format(end, 
-                paste("&d=", as.character(as.numeric(format(end, 
-                  "%m")) - 1), "&e=%d&f=%Y", sep = "")), "&g=d&q=q&y=0&z=", 
-            instruments[i], "&x=.csv", sep = "")
+            "%m")) - 1), "&b=%d&c=%Y", sep = "")), format(end,
+            paste("&d=", as.character(as.numeric(format(end,
+            "%m")) - 1), "&e=%d&f=%Y", sep = "")), "&g=", compression,
+            "&q=q&y=0&z=", instruments[i], "&x=.csv", sep = "")
         destfile <- tempfile()
         status <- download.file(url, destfile, method = method, quiet=quiet)
         if (status != 0) 
@@ -829,6 +829,5 @@ oneinstrument <- its(y)[,quote]
         names(oneinstrument) <- paste(instruments[i],quote)
         allinstruments <- union(allinstruments,oneinstrument)
         }
-    #return(allinstruments)
-    return(y)
+    return(allinstruments)
     }

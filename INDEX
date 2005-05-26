@@ -6,6 +6,7 @@ itsAccessor             Accessor, Assignment Functions for Irregular
                         Time-Series Objects
 itsArith                Arithmetic Methods for Irregular Time-Series
                         Objects
+itsConvert              Conversion for its objects
 itsCumdif               Cumulation, Differencing for Irregular
                         Time-Series Objects
 itsDisp                 Display Methods for Irregular Time-Series

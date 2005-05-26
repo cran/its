@@ -1,7 +1,17 @@
 its package release notes
-1.0.5		2005-05-16
-1 no longer necessary to force the use of a fixed timezone
-2 various changes in functionality provided by Giles, a changelog should be available soon
+1.0.8 2005-05-26
+1		made as.its generic
+2		added compression argument to priceIts contributed by
+		John Bollinger
+
+1.0.7 2005-05-22
+1			added as.list.its and as.data.frame.its to exported names
+
+1.0.6		2005-05-16
+1     added ... to the args of generic dates()
+2     fixed bug in locf() dates
+3     removal of tzone attribute from dates slot
+4     some changes to extractIts, including a bugfix (affected yearends in some cases)
 
 1.0.4   2004-12-01
 1	its now forces all tzones to be UTM, unless tzone is already an attribute of the dates

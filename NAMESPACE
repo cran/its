@@ -19,7 +19,8 @@ export( readcsvIts,
         its.format,
         locf,
         priceIts,
-				"[.POSIXct"
+				as.list.its,
+				as.data.frame.its
         )
 
 exportClasses("its")

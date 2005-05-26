@@ -17,7 +17,8 @@ CVS commit and tag
 Protect .tar.gz
 
 FTP upload of .tar.gz at the command prompt:
-ftp anonymous@cran.r-project.org
+ftp cran.r-project.org
+anonymous
 your.email.address@yourserver.com
 cd ./incoming
 put ./its_i.j.k.tar.gz

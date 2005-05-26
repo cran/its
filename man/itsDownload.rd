@@ -10,7 +10,8 @@
 priceIts(instruments = "^gdax", start, end, 
                 quote = c("Open","High", "Low", "Close"), 
                 provider = "yahoo", method = "auto", 
-                origin = "1899-12-30",quiet=TRUE)               
+                origin = "1899-12-30", compression = "d", quiet=TRUE)
+                
 }
 \arguments{
   \item{instruments}{a character string giving the name of the quote
@@ -39,6 +40,8 @@ priceIts(instruments = "^gdax", start, end,
     above.  Defaults to 1899-12-30 (Popular spreadsheet programs
     internally also use Julian dates with this origin).}
   \item{quiet}{a flag to suppress output}
+  \item{compression}{Governs the granularity of the retrieved data;
+    "d" for daily, "w" for weekly or "m" for monthly. Defaults to "d".} 
 }
 \value{
   An \code{"its"} object with the requested data
