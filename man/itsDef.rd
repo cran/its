@@ -5,6 +5,8 @@
 \alias{its-class}
 \alias{is.its}
 \alias{as.its}
+\alias{as.its.default}
+\alias{as.its.zoo}
 \alias{coerce,its,data.frame-method}
 \alias{its.format}
 \alias{newIts}

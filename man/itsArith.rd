@@ -3,31 +3,26 @@
 \name{itsArith}
 \alias{itsArith}
 \alias{Arith,its,its-method}
-\alias{+}
+\alias{Arith.its}
+\alias{+.its}
+\alias{-.its}
+\alias{*.its}
+\alias{/.its}
+\alias{^.its}
 
 \title{Arithmetic Methods for Irregular Time-Series Objects}
 \description{
   Arithmetic methods for objects of class \code{"its"}.
 }
 
-\usage{
-     x + y
-     x - y
-     x * y
-     x / y
-     x ^ y
-     x %% y
-     x %/% y
-}
-
 \arguments{
-  \item{x,y}{an object of class \code{"its"}}
+  \item{e1}{its object}
+	\item{e2}{its object}
 }
 \details{
-
+Date matching is performed then the arithmatic is done on the intersection of the dates of the two arguments.
 The arithmetic operators return numeric vectors containing the result of the 
-element-by-element operations.  The dates of the arguments are matched and
-the intersection of the dates is returned.
+element-by-element operations.
 
 Note that the matrix multiplication operator, %*%, is inherited from matrix,
 and the result of a matrix multiplication is a matrix, not an \code{"its"}.

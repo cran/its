@@ -330,24 +330,29 @@ is.its <- function(object)
     return(inherits(object,"its") && validIts(object))
     }
 
-as.its <- function(x,...) UseMethod("as.its") 
-#as.its-function----------------------------------------------------
-as.its <- function(x,...)
+
+#as.its-method-------------------------------------------------------
+as.its <- function(x,...) { UseMethod("as.its") }
+
+# as.its-fucntion--------------------------------------------
+as.its.default <- function(x,...)
 	{
-   	dates <- as.vector(x[,1])
-   	class(dates) <- c("POSIXt","POSIXct")
-	 	return(its(x=x[,-1],dates=dates,...))
+  dates <- as.vector(x[,1])
+  class(dates) <- c("POSIXt","POSIXct")
+  return(its(x=x[,-1],dates=dates,...))
 	}
+
 # as.its.zoo-fucntion--------------------------------------------
 # for converting an its object into a zoo object
 # contributed by the zoo team
-as.its.zoo <- function(x) {
+	as.its.zoo <- function(x,...)
+	{
   stopifnot(require(its))
   index <- attr(x, "index")
   stopifnot(inherits(index, "POSIXct"))
   attr(x, "index") <- NULL
   its(unclass(x), index)
-}
+	}
 #lagIts-function----------------------------------------------------
 lagIts <- function(x,k=1)
 {
