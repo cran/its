@@ -1,4 +1,8 @@
 its package release notes
+1.1.8 2009-09-06
+1 patch from Maxim Krikun to fix union w/ 0 column argument
+2 testsuite cleanup
+3 format cleanup for some functions
 
 1.1.5 2006-09-09
 1 added its,numeric and numeric,its S4 methods for Arith
@@ -66,7 +70,7 @@ its package release notes
 2   new 'lab' option in plot for labelling series
 3   'leg' option in plot now uses labcurve(), not locator()
 4   renamed the function classifications in documentation (itsFunctions, not its-functions)
-5   dates() accessor & assignment methods for dates 
+5   dates() accessor & assignment methods for dates
 6   names() accessor & assignment functions for the dimnames(matrix)[[2]]
 7   core() accessor & assignment functions for the matrix
 8   revised summary()

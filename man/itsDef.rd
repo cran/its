@@ -42,19 +42,19 @@ its.format(formatDefault=NULL)
     representing the time-stamps of the irregular time-series
     object. The elements of the numeric vector are construed as the
     number of seconds since the beginning of 1970, see \code{\link{POSIXct}}.}
-  \item{start, end}{POSIXct or character representation of the start or end time-stamp, 
+  \item{start, end}{POSIXct or character representation of the start or end time-stamp,
     if character, then the format is as specified by the argument \code{format}}
   \item{ncol}{number of columns of synthetic sequence of dates}
   \item{by}{time increment for synthetic sequence of dates, see \code{\link{seq.POSIXt}}}
-  \item{extract}{logical flag: if TRUE, a subset of the synthetic sequence of dates is extracted, 
+  \item{extract}{logical flag: if TRUE, a subset of the synthetic sequence of dates is extracted,
         see \code{\link{extractIts}}}
   \item{x}{a numeric matrix representing the values of the
     irregular time-series object.  In the case of coercion in as.its, the first
     column is taken to be the time-stamps, in seconds since the beginning
     of 1970, see \code{\link{POSIXct}}.}
-  \item{object} { }
+  \item{object}{an R object convertible to its}
   \item{names}{a vector of mode character}
-  \item{format}{a formatting string, see \code{\link{format.POSIXct}}, defaults to 
+  \item{format}{a formatting string, see \code{\link{format.POSIXct}}, defaults to
                 \code{its.format()}}
   \item{formatDefault}{a formatting string, see \code{\link{format.POSIXct}},
     defaults to \code{"\%Y-\%m-\%d"} if \code{formatDefault} is not specified.}
@@ -74,26 +74,26 @@ its.format(formatDefault=NULL)
  An object of class "its" inherits matrix arithmetic methods.  The matrix
  has dimnames: dimnames[[1]] is populated with a text representation of
  "dates", using a format which is defined by the function its.format. These
- dates are not used in computations - all computations use the 
+ dates are not used in computations - all computations use the
  POSIX representation.  The dates are required to be in ascending order.
- 
+
  When matrix multiplication is applied to an "its", the result is of class
- matrix.  It is possible to restore the "its" class (see examples) - its() 
+ matrix.  It is possible to restore the "its" class (see examples) - its()
  is in this sense idempotent i.e. its(mat)==its(its(mat)).  Note however that
  the dates will be taken from dimnames[[1]], so the accuracy of this
  operation depends on the format of the dates.
 
- \code{newIts} is a utility for creating a new "its" using a series of 'semi-regular' 
+ \code{newIts} is a utility for creating a new "its" using a series of 'semi-regular'
  time-stamps, such as weekday, weekly, monthend etc.  Conceptually the date sequence
  generation has two parts. The first part is the generation of a sequence using
- \code{\link{seq.POSIXt}} - the arguments from, to, and by are passed to this function.  The second 
- part (which is optional, and applies only if extract=TRUE) is an extraction, 
+ \code{\link{seq.POSIXt}} - the arguments from, to, and by are passed to this function.  The second
+ part (which is optional, and applies only if extract=TRUE) is an extraction,
  performed by \code{extractIts}. See \code{\link{extractIts}} for details of the arguments,
  which are passed via '...' .
 
- The function \code{its.format} assigns a private variable and returns its value. The 
+ The function \code{its.format} assigns a private variable and returns its value. The
  value of this default format persists in the session until reset.  The purpose of the
- function is one of convenience: to access and/or assign the default text format for dates 
+ function is one of convenience: to access and/or assign the default text format for dates
  in the "its" package, and hence reduce the need to define the format repeatedly in a session.
 
 }
@@ -119,7 +119,7 @@ see \code{\link{format.POSIXct}}
   \code{\link{itsTimes}},
   \code{\link{itsSubset}},
   \code{\link{itsFin}},
-  \code{\link{itsInterp}}  
+  \code{\link{itsInterp}}
   }
 
 \examples{
@@ -137,6 +137,6 @@ as.its(mat)
 its.format("\%a \%d \%b \%Y")
 newIts(start="2003-09-30",end="2005-05-05",format="\%Y-\%m-\%d",period="month",find="last",extract=TRUE,weekday=TRUE)
 newIts(start=ISOdate(2003,12,24,0),end=ISOdate(2004,1,10),extract=TRUE,weekday=TRUE)
-its.format("\%Y\%m\%d") 
+its.format("\%Y\%m\%d")
 as(newIts(),"data.frame")
 }

@@ -58,20 +58,20 @@ its.its.opp <- function(e1,e2) {
 
     ## add the data, taking the subset of the core for which the dates match
     ans <- callGeneric(e1[dates=i.dates,]@.Data,e2[dates=i.dates,]@.Data)
-    
+
     ## make a new its w/ the ans and the dates intersection
     return(its(ans,i.dates))
 }
 setMethod("Arith",signature(e1="its",e2="its"),its.its.opp)
 
 its.numeric.opp <- function(e1,e2) {
-    ans <- callGeneric(e1@.Data,e2) 
+    ans <- callGeneric(e1@.Data,e2)
     return(its(ans,dates(e1)))
 }
 setMethod("Arith",signature("its", "numeric"),its.numeric.opp)
 
 numeric.its.opp <- function(e1,e2) {
-    ans <- callGeneric(e1,e2@.Data)  
+    ans <- callGeneric(e1,e2@.Data)
     return(its(ans,dates(e2)))
 }
 setMethod("Arith",signature("numeric","its"),numeric.its.opp)
@@ -79,7 +79,7 @@ setMethod("Arith",signature("numeric","its"),numeric.its.opp)
 if(!isGeneric("plot")) setGeneric("plot", useAsDefault=plot)
 
 plotIts <- function(x,y,colvec=1:ncol(x),type="l",ltypvec=1,lwdvec=1,
-                    leg=FALSE,yrange,format,at,interp=c("linear","none"),lab=FALSE,...) 
+                    leg=FALSE,yrange,format,at,interp=c("linear","none"),lab=FALSE,...)
 {
     if(missing(yrange)){ylim <- range(x,na.rm=TRUE)} else {ylim <- yrange}
     interp <- match.arg(interp)
@@ -93,7 +93,7 @@ plotIts <- function(x,y,colvec=1:ncol(x),type="l",ltypvec=1,lwdvec=1,
     lwdveclong <- rep(lwdvec,length.out=m)
     for(i in 1:m)
     {
-        if(interp=="linear") 
+        if(interp=="linear")
         {
             vpoints <- c(1,which(!is.na(x[,i])),n)
             xxx <- x[,i]
@@ -116,7 +116,7 @@ plotIts <- function(x,y,colvec=1:ncol(x),type="l",ltypvec=1,lwdvec=1,
                  ...)
         }
     }
-    if(lab) 
+    if(lab)
     {
         labcurve(curves=gencurves(x),
                  labels=dimnames(x)[[2]],
@@ -133,7 +133,7 @@ plotIts <- function(x,y,colvec=1:ncol(x),type="l",ltypvec=1,lwdvec=1,
                  cex=.8)
     }
     grid()
-    axis.POSIXct(x=xdates[vpoints],side=1,at=at,format=format)    
+    axis.POSIXct(x=xdates[vpoints],side=1,at=at,format=format)
 }
 setMethod("plot",signature(x="its",y="missing"),plotIts)
 
@@ -207,8 +207,8 @@ unionIts <- function(x,y)
         n                       <- length(alldates)
         m                       <- m1+m2
         united                  <- matrix(NA,nrow=n,ncol=m)
-        united[match(dates1,alldates),1:m1] <- x
-        united[match(dates2,alldates),(m1+1):m] <- y
+        if(m1>0) united[match(dates1,alldates),1:m1] <- x
+        if(m2>0) united[match(dates2,alldates),(m1+1):m] <- y
         result <- its(united,dates=alldates,names=allnames)
     }
     if(is.null(x)) {result <- y}
@@ -220,31 +220,29 @@ setMethod("union",signature(x="its",y="NULL"),unionIts)
 setMethod("union",signature(x="NULL",y="its"),unionIts)
 
 ##intersect-method---------------------------------------------------
-intersectIts <- function(x,y)
-{
-    if(!is.null(x)&!is.null(y))
-    {
-        dates1                  <- x@dates
-        dates2                  <- y@dates
-        alldates                <- sort(intersect(dates1,dates2))
-        class(alldates)         <- class(x@dates)
-        allnames                <- c(dimnames(x)[[2]],dimnames(y)[[2]])
-        m1                      <- dim(x)[2]
-        m2                      <- dim(y)[2]
-        n                       <- length(alldates)
-        m                       <- m1+m2
-        united                  <- matrix(NA,n,m)
-        drows1                  <- sort(match(dates1,alldates))
-        drows2                  <- sort(match(dates2,alldates))
-        srows1                  <- sort(match(alldates,dates1))
-        srows2                  <- sort(match(alldates,dates2))
-        united[drows1,1:m1]     <- x[srows1,,drop=FALSE]
-        united[drows2,(m1+1):m] <- y[srows2,,drop=FALSE]
-        result <- its(united,dates=alldates,names=allnames)
-    }
-    if(is.null(x)) {result <- y}
-    if(is.null(y)) {result <- x}
-    return(result)
+intersectIts <- function(x,y) {
+  if( !is.null(x) & !is.null(y) ) {
+    dates1                  <- x@dates
+    dates2                  <- y@dates
+    alldates                <- sort(intersect(dates1,dates2))
+    class(alldates)         <- class(x@dates)
+    allnames                <- c(dimnames(x)[[2]],dimnames(y)[[2]])
+    m1                      <- dim(x)[2]
+    m2                      <- dim(y)[2]
+    n                       <- length(alldates)
+    m                       <- m1+m2
+    united                  <- matrix(NA,n,m)
+    drows1                  <- sort(match(dates1,alldates))
+    drows2                  <- sort(match(dates2,alldates))
+    srows1                  <- sort(match(alldates,dates1))
+    srows2                  <- sort(match(alldates,dates2))
+    united[drows1,1:m1]     <- x[srows1,,drop=FALSE]
+    united[drows2,(m1+1):m] <- y[srows2,,drop=FALSE]
+    result <- its(united,dates=alldates,names=allnames)
+  }
+  if(is.null(x)) {result <- y}
+  if(is.null(y)) {result <- x}
+  return(result)
 }
 setMethod("intersect",signature(x="its",y="its"),intersectIts)
 setMethod("intersect",signature(x="its",y="NULL"),intersectIts)
@@ -310,14 +308,14 @@ its <- function(x,
                 dates=as.POSIXct(x=strptime(dimnames(x)[[1]],format=its.format())),
                 names=dimnames(x)[[2]],format=its.format(),...)
 {
-    
+
     if(!is(dates,"POSIXt")) stop("dates should be in POSIX format")
-    
+
     dates <- as.POSIXct(dates)
 
     ## fix identical bug
     if(is.null(attr(dates,"tzone"))) attr(dates,"tzone") <- ""
-    
+
     if(is.null(dim(x))){dim(x) <- c(length(x),1)}
     x <- addDimnames(x)
     if(!(nrow(x)==length(dates))) {stop("dates length must match matrix nrows")}
@@ -359,23 +357,23 @@ as.its.zoo <- function(x,...)
 ##lagIts-function----------------------------------------------------
 lagIts <- function(x,k=1)
 {
-    
+
     if (!inherits(x, "its")) stop("function is only valid for objects of class 'its'")
-    
+
     lagmat <- core(x)*NA
-    
+
     dimnames(lagmat)[[2]] <- paste(dimnames(lagmat)[[2]],"lag",k)
-    
+
     n <- dim(x)[1]
-    
+
     if(k>0) {
         lagmat[(k+1):n,] <- x[1:(n-k),]
     }  else {
         lagmat[1:(n+k),] <- x[(1-k):n,]
     }
-    
+
     y <- its(lagmat,dates=x@dates)
-    
+
     return(y)
 }
 
@@ -395,19 +393,19 @@ lagdistIts <- function(x,kmin,kmax)
 }
 
 ##alignedIts-function---------------------------------------------
-alignedIts <- function(obj1,obj2,print=FALSE)
-{
-    if (!inherits(obj1, "its")&inherits(obj2, "its")) stop("function is only valid for objects of class 'its'")
+alignedIts <- function(obj1,obj2,print=FALSE) {
+    if( !inherits(obj1, "its") & inherits(obj2, "its") )
+      stop("function is only valid for objects of class 'its'")
+
     ##takes the intersection of the dates and extracts same dates for both
     mat <- intersectIts(obj1,obj2)
     obj1a <- mat[,1:ncol(obj1),drop=FALSE]
     obj2a <- mat[,(ncol(obj1)+1):ncol(mat),drop=FALSE]
-    if(print)
-    {
-        print(paste("inputs number of rows",nrow(obj1),nrow(obj2),"; output number of rows",nrow(mat)))
-        print(paste("inputs number of cols",ncol(obj1),ncol(obj2),"; output number of cols",ncol(obj1a),ncol(obj2a)))
+    if(print) {
+      print(paste("inputs number of rows",nrow(obj1),nrow(obj2),"; output number of rows",nrow(mat)))
+      print(paste("inputs number of cols",ncol(obj1),ncol(obj2),"; output number of cols",ncol(obj1a),ncol(obj2a)))
     }
-    return(list(obj1a,obj2a))
+    list(obj1a,obj2a)
 }
 
 ##appendIts-function-------------------------------------------------
@@ -494,12 +492,12 @@ newIts <- function(x=NA,
     }
 
     if(missing(end)) {
-        end <- format(as.Date(start,format=its.format())+9,format=its.format())
-        end.p <- as.POSIXct(x=strptime(end,format=format),tz=tz)
+      end <- format(as.Date(start,format=its.format()) + 99,format=its.format())
+      end.p <- as.POSIXct(x=strptime(end,format=format),tz=tz)
     } else if(mode(end)=="character") {
-        end.p <- as.POSIXct(x=strptime(end,format=format),tz=tz)
+      end.p <- as.POSIXct(x=strptime(end,format=format),tz=tz)
     } else {
-        end.p <- as.POSIXct(end)
+      end.p <- as.POSIXct(end)
     }
 
     dates <- seq(from=start.p,by=by,to=end.p)
@@ -511,7 +509,7 @@ newIts <- function(x=NA,
     result <- its(matrix(x,ncol=ncol,nrow=length(dates)),dates)
 
     return(result)
-} 
+}
 ##extractIts-function-----------------------------------------------
 extractIts <- function(x,
                        weekday=FALSE,
@@ -732,7 +730,7 @@ its.format <- function(formatDefault=NULL) {
         outformat <- get(x=".itsformat",env=itsState,inherits=FALSE)
     } else {
         outformat <- formatDefault
-        assign(x=".itsformat",value=formatDefault,env=itsState,inherits=FALSE)    
+        assign(x=".itsformat",value=formatDefault,env=itsState,inherits=FALSE)
     }
     return(outformat)
 }
@@ -795,7 +793,7 @@ extractDates <- function(dates,
         theperiod <- 100*theyear+theweek
         dayinperiod <- as.POSIXlt(dates[myindex1])$wday
     }
-    
+
     ##2  if selecting based on 'find'
     if(find=="all") {
         myindex2 <- 1:length(myindex1)
@@ -843,7 +841,7 @@ gencurves <- function(x)
 }
 
 ##most.recent-function--------------------------------------------
-most.recent <- function(x) 
+most.recent <- function(x)
 {
     ## return a vector of indices of the most recent TRUE value (thanks to Tony Plate)
     if (!is.logical(x)) stop("x must be logical")
@@ -872,7 +870,7 @@ priceIts <- function (instruments = "^gdaxi",
                       start, end,
                       quote = c("Open","High", "Low", "Close"),
                       provider = "yahoo",
-                      method = "auto", 
+                      method = "auto",
                       origin = "1899-12-30",
                       compression="d",
                       quiet=TRUE)
@@ -885,10 +883,10 @@ priceIts <- function (instruments = "^gdaxi",
         stop("provider not implemented")
 
     allinstruments <- NULL
-    
-    if (missing(start)) 
+
+    if (missing(start))
         start <- "1991-01-02"
-    if (missing(end)) 
+    if (missing(end))
         end <- format(Sys.time() - 86400, "%Y-%m-%d")
 
     provider <- match.arg(provider)
@@ -896,7 +894,7 @@ priceIts <- function (instruments = "^gdaxi",
     end <- as.POSIXct(end, tz = "GMT")
 
     for(i in 1:length(instruments)) {
-        url <- paste("http://chart.yahoo.com/table.csv?s=", instruments[i], 
+        url <- paste("http://chart.yahoo.com/table.csv?s=", instruments[i],
                      format(start, paste("&a=", as.character(as.numeric(format(start, "%m")) - 1), "&b=%d&c=%Y", sep = "")),
                      format(end,paste("&d=", as.character(as.numeric(format(end,"%m")) - 1), "&e=%d&f=%Y", sep = "")),
                      "&g=",compression,
@@ -916,9 +914,9 @@ priceIts <- function (instruments = "^gdaxi",
             stop(paste("No data available for", instruments[i]))
         }
         data <- read.csv(destfile)
-        data <- data[nrow(data):1,]         ## and inverse order in data   
-        y <- its(as.matrix(data[,-1]),                                             
-                 dates=strptime(as.character(data[,1]), format="%Y-%m-%d")) 
+        data <- data[nrow(data):1,]         ## and inverse order in data
+        y <- its(as.matrix(data[,-1]),
+                 dates=strptime(as.character(data[,1]), format="%Y-%m-%d"))
 
         oneinstrument <- its(y)[,quote]
 
